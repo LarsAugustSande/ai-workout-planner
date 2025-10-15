@@ -1,9 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FaBrain, FaDumbbell, FaUtensils, FaChartLine, FaRocket, FaShieldAlt, FaQuestionCircle } from 'react-icons/fa';
+import { useDarkMode } from './DarkModeContext';
 import './LandingPage.css';
 
-function LandingPage({ onGetStarted, onContact }) {
+function LandingPage({ onGetStarted, onContact, onPricing }) {
+  const { isDarkMode } = useDarkMode();
   const features = [
     {
       icon: <FaBrain />,
@@ -81,6 +83,17 @@ function LandingPage({ onGetStarted, onContact }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
+            <div className="hero-logo">
+              <motion.img 
+                src={isDarkMode ? '/logoteksthvit.png' : '/logotekstsort.png'} 
+                alt="Trenly Logo" 
+                className="hero-logo-img"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+              />
+            </div>
+
             <div className="hero-badge">
               <FaRocket />
               <span>Revolusjoner din trening med AI</span>
@@ -119,6 +132,14 @@ function LandingPage({ onGetStarted, onContact }) {
               >
                 <FaRocket />
                 <span>Start din AI-trening nå</span>
+              </motion.button>
+              <motion.button
+                className="cta-button secondary"
+                onClick={onPricing || (() => {})}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <span>Se priser</span>
               </motion.button>
               <motion.button
                 className="cta-button secondary"

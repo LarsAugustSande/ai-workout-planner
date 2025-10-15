@@ -10,12 +10,13 @@ import FAQ from './FAQ';
 import AboutUs from './AboutUs';
 import PrivacyPolicy from './PrivacyPolicy';
 import TermsOfService from './TermsOfService';
+import PricingPage from './PricingPage';
 import Navigation from './Navigation';
 import Footer from './Footer';
 import './App.css';
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('landing'); // 'landing', 'workout', 'nutrition', 'progression', 'contact', 'bmi', 'faq', 'about', 'privacy', 'terms'
+  const [currentPage, setCurrentPage] = useState('landing'); // 'landing', 'workout', 'nutrition', 'progression', 'contact', 'bmi', 'faq', 'about', 'privacy', 'terms', 'pricing'
   const [formData, setFormData] = useState({
     age: '',
     weight: '',
@@ -34,12 +35,14 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [expandedDays, setExpandedDays] = useState({});
+  const [expandedExercises, setExpandedExercises] = useState({});
   const [editMode, setEditMode] = useState(false);
   const [editSuggestions, setEditSuggestions] = useState('');
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [isGettingRecommendation, setIsGettingRecommendation] = useState(false);
   const [splitRecommendation, setSplitRecommendation] = useState(null);
   const [sportSpecific, setSportSpecific] = useState('');
+  const [useAutoSplit, setUseAutoSplit] = useState(true);
 
 
   const handleInputChange = (e) => {
@@ -136,81 +139,341 @@ function App() {
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
       
-      // Add title
-      doc.setFontSize(20);
-      doc.setFont('helvetica', 'bold');
-      doc.text(workoutPlan.title, 20, 30);
+      // Define colors
+      const colors = {
+        primary: [30, 58, 138],      // #1e3a8a
+        secondary: [5, 150, 105],    // #059669
+        accent: [245, 158, 11],      // #f59e0b
+        text: [31, 41, 55],          // #1f2937
+        lightGray: [243, 244, 246],  // #f3f4f6
+        border: [229, 231, 235]      // #e5e7eb
+      };
       
-      // Add description
+      let yPosition = 30;
+      
+      // Helper function to clean text and remove problematic characters while preserving Norwegian characters
+      const cleanText = (text) => {
+        if (!text) return '';
+        return text
+          // Remove problematic characters but keep Norwegian characters (æ, ø, å, Æ, Ø, Å)
+          .replace(/[^\w\sæøåÆØÅ.,!?;:()\-]/g, '') // Keep alphanumeric, spaces, Norwegian chars, and basic punctuation
+          .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+          .trim();
+      };
+      
+      // Helper function to add page if needed
+      const checkPageBreak = (requiredSpace = 50) => {
+        if (yPosition > pageHeight - requiredSpace) {
+          doc.addPage();
+          yPosition = 30;
+          return true;
+        }
+        return false;
+      };
+      
+      // Helper function to add colored header
+      const addColoredHeader = (text, color, fontSize = 18) => {
+        doc.setFillColor(color[0], color[1], color[2]);
+        doc.rect(0, yPosition - 15, pageWidth, 15, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(fontSize);
+        doc.setFont('helvetica', 'bold');
+        doc.text(text, 20, yPosition - 5);
+        doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+        yPosition += 25;
+      };
+      
+      // Helper function to add section divider
+      const addSectionDivider = () => {
+        doc.setDrawColor(colors.border[0], colors.border[1], colors.border[2]);
+        doc.setLineWidth(0.5);
+        doc.line(20, yPosition, pageWidth - 20, yPosition);
+        yPosition += 15;
+      };
+      
+      // Cover page with logo and title
+      doc.setFillColor(colors.lightGray[0], colors.lightGray[1], colors.lightGray[2]);
+      doc.rect(0, 0, pageWidth, pageHeight, 'F');
+      
+      // Add actual logo with text
+      try {
+        // Create a canvas to load the logo image
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        
+        // Try to load the logo image
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+          img.src = '/logotekstsort.png'; // Use the logo with text
+        });
+        
+        // Draw logo on canvas with original dimensions to maintain quality
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        ctx.drawImage(img, 0, 0);
+        
+        // Convert canvas to data URL
+        const imgData = canvas.toDataURL('image/png');
+        
+        // Calculate appropriate size for PDF (maintain aspect ratio)
+        const maxWidth = 180;
+        const maxHeight = 60;
+        const aspectRatio = img.naturalWidth / img.naturalHeight;
+        
+        let logoWidth = maxWidth;
+        let logoHeight = maxWidth / aspectRatio;
+        
+        if (logoHeight > maxHeight) {
+          logoHeight = maxHeight;
+          logoWidth = maxHeight * aspectRatio;
+        }
+        
+        // Add logo to PDF with proper dimensions
+        doc.addImage(imgData, 'PNG', pageWidth/2 - logoWidth/2, 40, logoWidth, logoHeight);
+        
+      } catch (error) {
+        console.log('Could not load logo image, using enhanced text version');
+        // Enhanced text-based logo representation
+        doc.setFillColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+        doc.roundedRect(pageWidth/2 - 60, 35, 120, 90, 10, 10, 'F');
+        
+        // Logo icon (T in circle)
+        doc.setFillColor(255, 255, 255);
+        doc.circle(pageWidth/2, 80, 22, 'F');
+        
+        // T icon
+        doc.setTextColor(colors.primary[0], colors.primary[1], colors.primary[2]);
+        doc.setFontSize(24);
+        doc.setFont('helvetica', 'bold');
+        doc.text('T', pageWidth/2 - 4, 87, { align: 'center' });
+        
+        // Main brand text
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(22);
+        doc.setFont('helvetica', 'bold');
+        doc.text('TRENLY', pageWidth/2, 110, { align: 'center' });
+        
+        // Subtitle
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Din personlige AI-trener', pageWidth/2, 120, { align: 'center' });
+      }
+      
+      // Title
+      doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+      doc.setFontSize(28);
+      doc.setFont('helvetica', 'bold');
+      doc.text(workoutPlan.title, pageWidth/2, 140, { align: 'center' });
+      
+      // Split type badge
+      if (workoutPlan.splitType) {
+        doc.setFillColor(colors.secondary[0], colors.secondary[1], colors.secondary[2]);
+        doc.roundedRect(pageWidth/2 - 40, 150, 80, 12, 6, 6, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text(workoutPlan.splitType, pageWidth/2, 158, { align: 'center' });
+      }
+      
+      // Description
+      doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
       doc.setFontSize(12);
       doc.setFont('helvetica', 'normal');
-      const descriptionLines = doc.splitTextToSize(workoutPlan.description, pageWidth - 40);
-      doc.text(descriptionLines, 20, 50);
+      // Clean description text and remove problematic characters
+      const cleanDescription = cleanText(workoutPlan.description);
+      const descriptionLines = doc.splitTextToSize(cleanDescription, pageWidth - 40);
+      doc.text(descriptionLines, pageWidth/2, 180, { align: 'center' });
       
-      let yPosition = 80;
+      // Date and generated info
+      doc.setFontSize(10);
+      doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+      const currentDate = new Date().toLocaleDateString('no-NO');
+      doc.text(`Generert: ${currentDate}`, pageWidth/2, pageHeight - 40, { align: 'center' });
+      doc.text('Generert av Trenly AI', pageWidth/2, pageHeight - 30, { align: 'center' });
+      
+      // Start new page for workouts
+      doc.addPage();
+      yPosition = 30;
+      
+      // Workouts section header
+      addColoredHeader('TRENINGSPLAN', colors.primary, 20);
       
       // Add workouts
       workoutPlan.workouts.forEach((workout, index) => {
-        if (yPosition > pageHeight - 50) {
-          doc.addPage();
-          yPosition = 30;
-        }
+        checkPageBreak(80);
         
-        // Workout title
+        // Workout day header with colored background
+        doc.setFillColor(colors.accent[0], colors.accent[1], colors.accent[2]);
+        doc.roundedRect(15, yPosition - 8, pageWidth - 30, 16, 4, 4, 'F');
+        doc.setTextColor(255, 255, 255);
         doc.setFontSize(16);
         doc.setFont('helvetica', 'bold');
-        doc.text(workout.day, 20, yPosition);
-        yPosition += 15;
+        doc.text(workout.day, 25, yPosition);
+        yPosition += 20;
         
+        // Focus/description
         if (workout.focus) {
-          doc.setFontSize(12);
-          doc.setFont('helvetica', 'normal');
-          doc.text(`🎯 ${workout.focus}`, 20, yPosition);
-          yPosition += 10;
+          doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+          doc.setFontSize(11);
+          doc.setFont('helvetica', 'italic');
+          // Clean text and replace problematic characters
+          const cleanFocus = cleanText(workout.focus);
+          doc.text(`Fokus: ${cleanFocus}`, 25, yPosition);
+          yPosition += 12;
         }
         
-        if (workout.exercises) {
+        if (workout.exercises && workout.exercises.length > 0) {
+          // Exercises table header
+          doc.setFillColor(colors.lightGray[0], colors.lightGray[1], colors.lightGray[2]);
+          doc.rect(20, yPosition - 6, pageWidth - 40, 12, 'F');
+          doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+          doc.setFontSize(10);
+          doc.setFont('helvetica', 'bold');
+          doc.text('Øvelse', 25, yPosition);
+          doc.text('Sets', 120, yPosition);
+          doc.text('Hvile', 150, yPosition);
+          doc.text('Utstyr', 180, yPosition);
+          yPosition += 15;
+          
           // Exercises
           workout.exercises.forEach((exercise, exIndex) => {
-            if (yPosition > pageHeight - 30) {
-              doc.addPage();
-              yPosition = 30;
+            checkPageBreak(40);
+            
+            // Alternate row colors
+            if (exIndex % 2 === 0) {
+              doc.setFillColor(248, 250, 252);
+              doc.rect(20, yPosition - 4, pageWidth - 40, 12, 'F');
             }
             
-            doc.setFontSize(12);
-            doc.setFont('helvetica', 'bold');
-            doc.text(`${exIndex + 1}. ${exercise.name}`, 30, yPosition);
-            yPosition += 8;
-            
+            // Exercise name
+            doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
             doc.setFontSize(10);
-            doc.setFont('helvetica', 'normal');
-            doc.text(`   Sets: ${exercise.sets}`, 30, yPosition);
-            doc.text(`   Hvile: ${exercise.rest}`, 100, yPosition);
-            yPosition += 8;
-            
-            if (exercise.tips) {
-              const tipsLines = doc.splitTextToSize(`   Tips: ${exercise.tips}`, pageWidth - 50);
-              doc.text(tipsLines, 30, yPosition);
-              yPosition += tipsLines.length * 4 + 5;
+            doc.setFont('helvetica', 'bold');
+            // Clean exercise name and remove problematic characters
+            const cleanExerciseName = cleanText(exercise.name);
+            const exerciseName = `${exIndex + 1}. ${cleanExerciseName}`;
+            const maxNameWidth = 90;
+            if (doc.getTextWidth(exerciseName) > maxNameWidth) {
+              const truncatedName = doc.splitTextToSize(exerciseName, maxNameWidth)[0];
+              doc.text(truncatedName, 25, yPosition);
+            } else {
+              doc.text(exerciseName, 25, yPosition);
             }
             
-            yPosition += 5;
+            // Sets
+            doc.setFont('helvetica', 'normal');
+            const cleanSets = cleanText(exercise.sets) || '-';
+            doc.text(cleanSets, 120, yPosition);
+            
+            // Rest
+            const cleanRest = cleanText(exercise.rest) || '-';
+            doc.text(cleanRest, 150, yPosition);
+            
+            // Equipment
+            const cleanEquipment = cleanText(exercise.equipment) || '-';
+            doc.text(cleanEquipment, 180, yPosition);
+            
+            yPosition += 15;
+            
+            // Exercise details (tips, description, etc.)
+            if (exercise.tips || exercise.description) {
+              checkPageBreak(30);
+              
+              doc.setFontSize(9);
+              doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+              
+              if (exercise.tips) {
+                doc.setFont('helvetica', 'bold');
+                doc.text('Tips:', 35, yPosition);
+                doc.setFont('helvetica', 'normal');
+                // Clean text and remove problematic characters
+                const cleanTips = cleanText(exercise.tips);
+                const tipsLines = doc.splitTextToSize(cleanTips, pageWidth - 60);
+                doc.text(tipsLines, 35, yPosition + 4);
+                yPosition += tipsLines.length * 4 + 8;
+              }
+              
+              if (exercise.description) {
+                doc.setFont('helvetica', 'bold');
+                doc.text('Beskrivelse:', 35, yPosition);
+                doc.setFont('helvetica', 'normal');
+                // Clean text and remove problematic characters
+                const cleanDescription = cleanText(exercise.description);
+                const descLines = doc.splitTextToSize(cleanDescription, pageWidth - 60);
+                doc.text(descLines, 35, yPosition + 4);
+                yPosition += descLines.length * 4 + 8;
+              }
+              
+              if (exercise.muscleGroups) {
+                doc.setFont('helvetica', 'bold');
+                doc.text('Muskler:', 35, yPosition);
+                doc.setFont('helvetica', 'normal');
+                // Clean muscle groups text
+                const cleanMuscles = exercise.muscleGroups.map(m => cleanText(m)).join(', ');
+                doc.text(cleanMuscles, 35, yPosition + 4);
+                yPosition += 8;
+              }
+              
+              yPosition += 5;
+            }
           });
         } else {
           // Rest day
-          doc.setFontSize(12);
+          checkPageBreak(30);
+          doc.setFillColor(colors.lightGray[0], colors.lightGray[1], colors.lightGray[2]);
+          doc.roundedRect(20, yPosition - 6, pageWidth - 40, 20, 4, 4, 'F');
+          doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+          doc.setFontSize(11);
           doc.setFont('helvetica', 'normal');
+          // Clean rest day text and remove problematic characters
           const restText = workout.description || "Dette er en hviledag. Fokuser på hvile, gjenoppretting og næring.";
-          const restLines = doc.splitTextToSize(restText, pageWidth - 40);
-          doc.text(restLines, 30, yPosition);
+          const cleanRestText = cleanText(restText);
+          const restLines = doc.splitTextToSize(cleanRestText, pageWidth - 60);
+          doc.text(restLines, 30, yPosition + 4);
           yPosition += restLines.length * 5 + 15;
         }
         
-        yPosition += 10;
+        yPosition += 15;
+        addSectionDivider();
       });
       
-      // Save PDF
-      doc.save(`${workoutPlan.title.replace(/\s+/g, '_')}.pdf`);
+      // Add progression and safety tips if available
+      if (workoutPlan.progression || workoutPlan.safety) {
+        checkPageBreak(60);
+        
+        if (workoutPlan.progression) {
+          addColoredHeader('PROGRESJON', colors.secondary);
+          doc.setFontSize(11);
+          doc.setFont('helvetica', 'normal');
+          // Clean progression text and remove problematic characters
+          const cleanProgression = cleanText(workoutPlan.progression);
+          const progressionLines = doc.splitTextToSize(cleanProgression, pageWidth - 40);
+          doc.text(progressionLines, 25, yPosition);
+          yPosition += progressionLines.length * 5 + 15;
+        }
+        
+        if (workoutPlan.safety) {
+          addColoredHeader('SIKKERHETSTIPS', colors.accent);
+          doc.setFontSize(11);
+          doc.setFont('helvetica', 'normal');
+          // Clean safety text and remove problematic characters
+          const cleanSafety = cleanText(workoutPlan.safety);
+          const safetyLines = doc.splitTextToSize(cleanSafety, pageWidth - 40);
+          doc.text(safetyLines, 25, yPosition);
+          yPosition += safetyLines.length * 5 + 15;
+        }
+      }
+      
+      // Footer on last page
+      doc.setFontSize(8);
+      doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
+      doc.text('Trenly AI - Din personlige treningsassistent', pageWidth/2, pageHeight - 15, { align: 'center' });
+      
+      // Save PDF with better filename
+      const filename = `${workoutPlan.title.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+      doc.save(filename);
       
     } catch (error) {
       console.error('Error generating PDF:', error);
@@ -236,7 +499,8 @@ function App() {
         body: JSON.stringify({
           ...formData,
           availableTime: timeToUse,
-          sportSpecific: formData.goals === 'sport' ? sportSpecific : null
+          sportSpecific: formData.goals === 'sport' ? sportSpecific : null,
+          useAutoSplit: useAutoSplit
         })
       });
       
@@ -261,7 +525,8 @@ function App() {
       <>
         <LandingPage 
           onGetStarted={() => setCurrentPage('workout')} 
-          onContact={() => setCurrentPage('contact')} 
+          onContact={() => setCurrentPage('contact')}
+          onPricing={() => setCurrentPage('pricing')}
         />
         <Footer onNavigate={setCurrentPage} />
       </>
@@ -383,6 +648,24 @@ function App() {
           isVisible={true}
         />
         <TermsOfService onBack={() => setCurrentPage('landing')} />
+        <Footer onNavigate={setCurrentPage} />
+      </>
+    );
+  }
+
+  // Show Pricing page if selected
+  if (currentPage === 'pricing') {
+    return (
+      <>
+        <Navigation 
+          currentPage={currentPage} 
+          onPageChange={setCurrentPage}
+          isVisible={true}
+        />
+        <PricingPage onGetStarted={(plan) => {
+          console.log(`User selected: ${plan}`);
+          setCurrentPage('workout');
+        }} />
         <Footer onNavigate={setCurrentPage} />
       </>
     );
@@ -558,56 +841,75 @@ function App() {
 
                   <div className="form-group">
                     <label>Treningssplit</label>
-                    <div className="split-selector">
-                      <select name="workoutSplit" value={formData.workoutSplit} onChange={handleInputChange}>
-                        <option value="push_pull_legs">Push/Pull/Legs</option>
-                        <option value="upper_lower">Upper/Lower</option>
-                        <option value="full_body">Full Body</option>
-                        <option value="bro_split">Bro Split</option>
-                        <option value="custom">Tilpasset</option>
-                      </select>
-                      <motion.button
-                        type="button"
-                        className="ai-recommend-btn"
-                        onClick={getSplitRecommendation}
-                        disabled={isGettingRecommendation}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        {isGettingRecommendation ? (
-                          <>
-                            <div className="spinner"></div>
-                            <span>Anbefaler...</span>
-                          </>
-                        ) : (
-                          <>
-                            <FaBrain />
-                            <span>Velg for meg</span>
-                          </>
-                        )}
-                      </motion.button>
-                    </div>
-                    <small className="form-hint">
-                      💡 Split vil automatisk tilpasse seg antall valgte treningsdager
-                    </small>
-                    {splitRecommendation && (
-                      <div className="recommendation-result">
-                        <div className="recommendation-header">
-                          <FaBrain className="recommendation-icon" />
-                          <strong>AI-anbefaling:</strong>
-                        </div>
-                        <p className="recommendation-reasoning">{splitRecommendation.reasoning}</p>
-                        <div className="recommendation-tips">
-                          <strong>Tips:</strong> {splitRecommendation.tips}
-                        </div>
-                        <button 
-                          type="button"
-                          className="close-recommendation"
-                          onClick={() => setSplitRecommendation(null)}
-                        >
-                          ✕
-                        </button>
+                    
+                    {/* Auto Split Toggle */}
+                    <div className="split-toggle">
+                      <div className="toggle-option">
+                        <input
+                          type="radio"
+                          id="auto-split"
+                          name="splitMode"
+                          checked={useAutoSplit}
+                          onChange={() => setUseAutoSplit(true)}
+                        />
+                        <label htmlFor="auto-split">
+                          <FaBrain className="toggle-icon" />
+                          <div className="toggle-content">
+                            <strong>Automatisk valg (anbefalt)</strong>
+                            <small>AI velger optimal split basert på dine preferanser</small>
+                          </div>
+                        </label>
                       </div>
+                      
+                      <div className="toggle-option">
+                        <input
+                          type="radio"
+                          id="manual-split"
+                          name="splitMode"
+                          checked={!useAutoSplit}
+                          onChange={() => setUseAutoSplit(false)}
+                        />
+                        <label htmlFor="manual-split">
+                          <FaDumbbell className="toggle-icon" />
+                          <div className="toggle-content">
+                            <strong>Jeg velger selv</strong>
+                            <small>For erfarne brukere som vet hva de vil ha</small>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Manual Split Selection (only shown when manual is selected) */}
+                    {!useAutoSplit && (
+                      <div className="manual-split-selection">
+                        <select name="workoutSplit" value={formData.workoutSplit} onChange={handleInputChange}>
+                          <option value="push_pull_legs">Push/Pull/Legs</option>
+                          <option value="upper_lower">Upper/Lower</option>
+                          <option value="full_body">Full Body</option>
+                          <option value="bro_split">Bro Split</option>
+                          <option value="custom">Tilpasset</option>
+                        </select>
+                      </div>
+                    )}
+
+                    {/* Auto Split Info */}
+                    {useAutoSplit && (
+                      <div className="auto-split-info">
+                        <div className="auto-split-badge">
+                          <FaBrain />
+                          <span>AI vil automatisk velge optimal split</span>
+                        </div>
+                        <small className="form-hint">
+                          💡 Basert på antall treningsdager, fitnessnivå og mål vil AI velge den beste split-strukturen for deg
+                        </small>
+                      </div>
+                    )}
+
+                    {/* Manual Split Hint */}
+                    {!useAutoSplit && (
+                      <small className="form-hint">
+                        💡 Velg den split-strukturen som passer best for dine treningsdager og mål
+                      </small>
                     )}
                   </div>
 
@@ -663,6 +965,15 @@ function App() {
                 {workoutPlan.splitType && (
                   <div className="split-info">
                     <span className="split-badge">{workoutPlan.splitType}</span>
+                    {workoutPlan.autoSplitInfo && workoutPlan.autoSplitInfo.wasAutoSelected && (
+                      <div className="auto-split-explanation">
+                        <FaBrain className="auto-split-icon" />
+                        <div className="auto-split-text">
+                          <strong>AI valgte denne split-strukturen:</strong>
+                          <p>{workoutPlan.autoSplitInfo.reasoning}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
                 <div className="plan-actions">
@@ -772,30 +1083,115 @@ function App() {
                     {expandedDays[index] && (
                       <div className="exercises">
                         {workout.exercises ? (
-                          workout.exercises.map((exercise, exIndex) => (
-                            <div key={exIndex} className="exercise">
-                              <div className="exercise-header">
-                                <div className="exercise-name">{exercise.name}</div>
-                                {exercise.equipment && (
-                                  <span className="equipment-tag">{exercise.equipment}</span>
+                          workout.exercises.map((exercise, exIndex) => {
+                            const exerciseKey = `${index}-${exIndex}`;
+                            const isExpanded = expandedExercises[exerciseKey];
+                            
+                            return (
+                              <div key={exIndex} className="exercise">
+                                <div 
+                                  className="exercise-header"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    console.log('Exercise header clicked:', exerciseKey, 'Current expanded state:', expandedExercises[exerciseKey]);
+                                    const newExpandedState = !expandedExercises[exerciseKey];
+                                    console.log('Setting new expanded state to:', newExpandedState);
+                                    setExpandedExercises(prev => {
+                                      const newState = {
+                                        ...prev,
+                                        [exerciseKey]: newExpandedState
+                                      };
+                                      console.log('New expanded exercises state:', newState);
+                                      return newState;
+                                    });
+                                  }}
+                                  style={{ cursor: 'pointer' }}
+                                >
+                                  <div className="exercise-name">{exercise.name}</div>
+                                  <div className="exercise-header-right">
+                                    {exercise.equipment && (
+                                      <span className="equipment-tag">{exercise.equipment}</span>
+                                    )}
+                                    <span 
+                                      className={`exercise-expand-icon ${isExpanded ? 'expanded' : ''}`}
+                                      data-expanded={isExpanded}
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        console.log('Expand icon clicked:', exerciseKey, 'Current expanded state:', expandedExercises[exerciseKey]);
+                                        const newExpandedState = !expandedExercises[exerciseKey];
+                                        console.log('Setting new expanded state to:', newExpandedState);
+                                        setExpandedExercises(prev => {
+                                          const newState = {
+                                            ...prev,
+                                            [exerciseKey]: newExpandedState
+                                          };
+                                          console.log('New expanded exercises state:', newState);
+                                          return newState;
+                                        });
+                                      }}
+                                      style={{ cursor: 'pointer' }}
+                                      title="Klikk for å utvide/kollapse øvelsesdetaljer"
+                                    >
+                                      ▼
+                                    </span>
+                                  </div>
+                                </div>
+                                <div className="exercise-details">
+                                  <span className="sets">{exercise.sets}</span>
+                                  <span className="rest">Hvile: {exercise.rest}</span>
+                                </div>
+                                
+                                {isExpanded && (
+                                  <motion.div 
+                                    className="exercise-expanded-content"
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                  >
+                                    {exercise.description && (
+                                      <div className="exercise-description">
+                                        <strong>📋 Hvordan utføre:</strong>
+                                        <p>{exercise.description}</p>
+                                      </div>
+                                    )}
+                                    
+                                    {exercise.muscleGroups && (
+                                      <div className="exercise-muscle-groups">
+                                        <strong>💪 Muskler som trenes:</strong>
+                                        <div className="muscle-tags">
+                                          {exercise.muscleGroups.map((muscle, muscleIndex) => (
+                                            <span key={muscleIndex} className="muscle-tag">{muscle}</span>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                    
+                                    {exercise.benefits && (
+                                      <div className="exercise-benefits">
+                                        <strong>✨ Fordeler:</strong>
+                                        <p>{exercise.benefits}</p>
+                                      </div>
+                                    )}
+                                    
+                                    {exercise.tips && (
+                                      <div className="exercise-tips">
+                                        <strong>💡 Tips:</strong> {exercise.tips}
+                                      </div>
+                                    )}
+                                    
+                                    {exercise.alternatives && (
+                                      <div className="exercise-alternatives">
+                                        <strong>🔄 Alternativer:</strong> {exercise.alternatives}
+                                      </div>
+                                    )}
+                                  </motion.div>
                                 )}
                               </div>
-                              <div className="exercise-details">
-                                <span className="sets">{exercise.sets}</span>
-                                <span className="rest">Hvile: {exercise.rest}</span>
-                              </div>
-                              {exercise.tips && (
-                                <div className="exercise-tips">
-                                  <strong>💡 Tips:</strong> {exercise.tips}
-                                </div>
-                              )}
-                              {exercise.alternatives && (
-                                <div className="exercise-alternatives">
-                                  <strong>🔄 Alternativer:</strong> {exercise.alternatives}
-                                </div>
-                              )}
-                            </div>
-                          ))
+                            );
+                          })
                         ) : (
                           <div className="rest-day-content">
                             <div className="rest-day-icon">😴</div>

@@ -23,7 +23,7 @@ app.get('/api/health', (req, res) => {
 // Generate workout plan endpoint
 app.post('/api/generate-workout', async (req, res) => {
   try {
-    const { age, weight, height, fitnessLevel, goals, availableTime, equipment, injuries, workoutSplit, trainingDays, sportSpecific } = req.body;
+    const { age, weight, height, fitnessLevel, goals, availableTime, equipment, injuries, workoutSplit, trainingDays, sportSpecific, useAutoSplit } = req.body;
 
     // Injury-specific exercise restrictions and alternatives
     const injuryRestrictions = {
@@ -117,6 +117,16 @@ const getSplitTemplate = (splitType, numDays) => {
           name: 'Bro Split',
           baseDays: ['Chest (Bryst)', 'Back (Rygg)', 'Shoulders (Skuldre)', 'Arms (Armer)', 'Legs (Ben)'],
           description: 'Split med fokus på én muskelgruppe per dag'
+        },
+        'cardio_focused': {
+          name: 'Kardio + Styrke',
+          baseDays: ['Løp + Core', 'Styrke Nedre Kropp', 'Løp + Øvre Kropp'],
+          description: 'Kombinert løpetrening og styrke for utholdenhet'
+        },
+        'running_focused': {
+          name: 'Løpefokusert',
+          baseDays: ['Intervall Løp', 'Styrke Ben + Core', 'Hviledag', 'Lang Løp', 'Styrke Øvre Kropp'],
+          description: 'Optimalisert for løpeytelse og styrke med hviledag'
         }
       };
 
@@ -129,12 +139,16 @@ const getSplitTemplate = (splitType, numDays) => {
           adaptedDays = ['Push (Bryst, Skuldre, Triceps)', 'Pull + Legs (Rygg, Biceps, Ben, Glutes)'];
         } else if (splitType === 'full_body') {
           adaptedDays = ['Full Body A', 'Full Body B'];
+        } else if (splitType === 'cardio_focused') {
+          adaptedDays = ['Løp + Core', 'Styrke Nedre Kropp'];
         }
       } else if (numDays === 3) {
         if (splitType === 'upper_lower') {
           adaptedDays = ['Upper Body', 'Lower Body', 'Upper Body'];
         } else if (splitType === 'full_body') {
           adaptedDays = ['Full Body A', 'Full Body B', 'Full Body C'];
+        } else if (splitType === 'cardio_focused') {
+          adaptedDays = ['Løp + Core', 'Styrke Nedre Kropp', 'Løp + Øvre Kropp'];
         }
       } else if (numDays === 4) {
         if (splitType === 'push_pull_legs') {
@@ -143,6 +157,8 @@ const getSplitTemplate = (splitType, numDays) => {
           adaptedDays = ['Upper Body', 'Lower Body', 'Upper Body', 'Lower Body'];
         } else if (splitType === 'full_body') {
           adaptedDays = ['Full Body A', 'Full Body B', 'Full Body C', 'Full Body D'];
+        } else if (splitType === 'running_focused') {
+          adaptedDays = ['Intervall Løp', 'Styrke Ben + Core', 'Hviledag', 'Lang Løp'];
         }
       } else if (numDays === 5) {
         if (splitType === 'push_pull_legs') {
@@ -171,7 +187,88 @@ const getSplitTemplate = (splitType, numDays) => {
       };
     };
 
-    const selectedSplit = getSplitTemplate(workoutSplit, parseInt(trainingDays));
+    // Auto-select optimal split if useAutoSplit is true
+    let finalWorkoutSplit = workoutSplit;
+    let autoSplitReasoning = '';
+    
+    if (useAutoSplit) {
+      const numDays = parseInt(trainingDays);
+      const fitnessLevelNum = fitnessLevel === 'beginner' ? 1 : fitnessLevel === 'intermediate' ? 2 : 3;
+      
+      // Auto-select logic based on training days, fitness level, and goals
+      // Check if goal is cardio/endurance/running focused first
+      const isCardioGoal = goals === 'cardio' || goals === 'endurance' || 
+                          (goals === 'sport' && sportSpecific && 
+                           (sportSpecific.toLowerCase().includes('løp') || 
+                            sportSpecific.toLowerCase().includes('running') ||
+                            sportSpecific.toLowerCase().includes('maraton') ||
+                            sportSpecific.toLowerCase().includes('5k') ||
+                            sportSpecific.toLowerCase().includes('10k') ||
+                            sportSpecific.toLowerCase().includes('halvmaraton')));
+      
+      if (isCardioGoal) {
+        // Cardio/endurance focused splits
+        if (numDays === 2) {
+          finalWorkoutSplit = 'cardio_focused';
+          autoSplitReasoning = 'Med 2 treningsdager og fokus på løping gir Kardio + Styrke optimal balanse mellom løpetrening og støttende styrke.';
+        } else if (numDays === 3) {
+          finalWorkoutSplit = 'cardio_focused';
+          autoSplitReasoning = 'Med 3 treningsdager og fokus på løping gir Kardio + Styrke perfekt fordeling av løpevolum og styrke.';
+        } else if (numDays === 4) {
+          finalWorkoutSplit = 'running_focused';
+          autoSplitReasoning = 'Med 4 treningsdager gir Løpefokusert split optimal struktur for både løpetrening og spesifikk styrke.';
+        } else if (numDays >= 5) {
+          finalWorkoutSplit = 'running_focused';
+          autoSplitReasoning = 'Med 5+ treningsdager gir Løpefokusert split mulighet for omfattende løpetrening med spesifikk styrke.';
+        }
+      } else if (goals === 'weightLoss') {
+        // Weight loss focused splits
+        if (numDays === 2) {
+          finalWorkoutSplit = 'full_body';
+          autoSplitReasoning = 'Med 2 treningsdager og fokus på vekttap gir Full Body maksimal fettforbrenning per treningsøkt.';
+        } else if (numDays === 3) {
+          finalWorkoutSplit = 'full_body';
+          autoSplitReasoning = 'Med 3 treningsdager og vekttap gir Full Body optimal balanse mellom styrke og kardiovaskulær trening.';
+        } else if (numDays === 4) {
+          finalWorkoutSplit = 'upper_lower';
+          autoSplitReasoning = 'Med 4 treningsdager gir Upper/Lower split mulighet for både styrke og kardio for effektivt vekttap.';
+        } else if (numDays >= 5) {
+          finalWorkoutSplit = 'push_pull_legs';
+          autoSplitReasoning = 'Med 5+ treningsdager gir Push/Pull/Legs mulighet for omfattende trening som maksimerer vekttap.';
+        }
+      } else if (goals === 'flexibility') {
+        // Flexibility focused splits
+        finalWorkoutSplit = 'full_body';
+        autoSplitReasoning = 'Med fokus på fleksibilitet gir Full Body mulighet for omfattende mobilitetstrening hele kroppen.';
+      } else {
+        // Strength/muscle building focused splits
+        if (numDays === 2) {
+          finalWorkoutSplit = 'full_body';
+          autoSplitReasoning = 'Med 2 treningsdager per uke er Full Body optimal for å trene alle muskelgrupper effektivt.';
+        } else if (numDays === 3) {
+          if (fitnessLevel === 'beginner') {
+            finalWorkoutSplit = 'full_body';
+            autoSplitReasoning = 'Som nybegynner med 3 treningsdager er Full Body best for å bygge grunnleggende styrke og teknikker.';
+          } else {
+            finalWorkoutSplit = 'push_pull_legs';
+            autoSplitReasoning = 'Med 3 treningsdager og litt erfaring gir Push/Pull/Legs optimal muskelstimulering og hvile.';
+          }
+        } else if (numDays === 4) {
+          finalWorkoutSplit = 'upper_lower';
+          autoSplitReasoning = 'Med 4 treningsdager gir Upper/Lower split perfekt balanse mellom volum og gjenoppretting.';
+        } else if (numDays >= 5) {
+          if (goals === 'strength' || goals === 'muscle') {
+            finalWorkoutSplit = 'push_pull_legs';
+            autoSplitReasoning = 'Med 5+ treningsdager og fokus på styrke/muskel gir Push/Pull/Legs optimal hypertrofi.';
+          } else {
+            finalWorkoutSplit = 'bro_split';
+            autoSplitReasoning = 'Med 5+ treningsdager gir Bro Split mulighet for høy frekvens per muskelgruppe.';
+          }
+        }
+      }
+    }
+
+    const selectedSplit = getSplitTemplate(finalWorkoutSplit, parseInt(trainingDays));
     
     // Build injury-specific restrictions
     let injuryGuidance = '';
@@ -211,113 +308,94 @@ SPORTSPESIFIKK TRENING:
 `;
     }
 
-    const prompt = `Lag en treningsplan for:
-    - Person: ${age}år, ${weight}kg, ${height}cm, ${fitnessLevel} nivå
-    - Mål: ${goals === 'sport' ? `Sportspesifikk trening (${sportSpecific})` : goals}
-    - Tid: ${availableTime} minutter per økt
-    - Split: ${selectedSplit.name} (${trainingDays} dager/uke)
-    - Utstyr: ${equipment}
-    - Skader: ${injuries || 'Ingen'}
+    const prompt = `Lag treningsplan:
+    ${age}år, ${weight}kg, ${height}cm, ${fitnessLevel}
+    Mål: ${goals === 'sport' ? `${sportSpecific}` : goals}
+    ${availableTime}min/økt, ${trainingDays} dager/uke
+    Split: ${selectedSplit.name}${useAutoSplit ? ` (${autoSplitReasoning})` : ''}
+    Utstyr: ${equipment}
+    ${injuries ? `Skader: ${injuries}` : ''}
     
     ${injuryGuidance}
     ${sportGuidance}
     
-    KRITISK: 
-    - Du skal lage nøyaktig ${trainingDays} TRENINGSDAGER (ikke hviledager)
-    - Hver TRENINGSDAG må ha MINST ${requiredExercises} øvelser for å fylle ${availableTime} minutter
-    - IKKE legg til hviledager i treningsplanen
-    - Alle ${trainingDays} dager skal være aktive treningsdager med øvelser
+    KRITISK: ${trainingDays} treningsdager.
     
-    For hver TRENINGSDAG, inkluder:
-    - Hovedøvelse 1 (sammensatt øvelse)
-    - Hovedøvelse 2 (sammensatt øvelse) 
-    - Støtteøvelse 1 (isolasjon)
-    - Støtteøvelse 2 (isolasjon)
-    - Støtteøvelse 3 (isolasjon)
-    ${availableTime > 60 ? '- Ekstra øvelse 1\n    - Ekstra øvelse 2' : ''}
-    ${availableTime > 90 ? '- Ekstra øvelse 3' : ''}
+    VIKTIG FOR LØPEDAGER:
+    - Hvis treningsdag inneholder "Løp", "Intervall", "Tempo", "Lang" → Kun 1-2 øvelser (hovedfokus på løping)
+    - Hvis treningsdag inneholder "Styrke" → ${requiredExercises} øvelser som vanlig
+    - Løpedager skal ha korte, fokuserte øvelser som støtter løping
     
-    For HVILEDAGER, inkluder:
-    - Kun en beskrivelse av hvile og gjenoppretting
-    - Ingen øvelser eller exercises-array
+    VIKTIG FOR HVILEDAGER:
+    - Hvis treningsdag inneholder "Hvile", "Rest", "Gjenoppretting" → INGEN øvelser i exercises-array
+    - Hviledager skal kun ha beskrivelse av hvile og gjenoppretting
+    - Ikke legg til styrkeøvelser på hviledager
     
-    Dette gir totalt ${requiredExercises} øvelser per TRENINGSDAG som er perfekt for ${availableTime} minutter.
+    EKSEMPLER:
+    - Løpedag: {"name": "Lang Løp 5km", "sets": "1x5km", "rest": "5min", "tips": "Hold jevn tempo", "alternatives": "Kortere distanse", "equipment": "Løpesko", "description": "Start med 5 min oppvarming i lett tempo. Hold jevn fart gjennom hele løpet. Slutt med 5 min nedkjøling.", "muscleGroups": ["Ben", "Core", "Hjertemuskel"], "benefits": "Forbedrer utholdenhet, kardiovaskulær helse og mental styrke"}
+    - Styrkedag: {"name": "Knebøy", "sets": "3x8-12", "rest": "90s", "tips": "Dyb ned", "alternatives": "Goblet squat", "equipment": "Hantler", "description": "Stå med føttene skulderbredde fra hverandre. Senk deg ned ved å bøye knærne til lårene er parallelle med bakken. Press deg opp til startposisjon.", "muscleGroups": ["Quadriceps", "Glutes", "Hamstrings", "Core"], "benefits": "Bygger benstyrke, forbedrer funksjonell styrke og stabilitet"}
+    - Hviledag: {"day": "Dag 4: Hviledag", "focus": "Hvile og gjenoppretting", "exercises": []}
     
-    VIKTIG: Returner KUN gyldig JSON uten kommentarer eller ekstra tekst.
-    
-    JSON-struktur:
+    JSON:
     {
-      "title": "Personlig ${selectedSplit.name} Treningsplan",
-      "description": "Detaljert beskrivelse av planen og split-strukturen",
+      "title": "${selectedSplit.name} Treningsplan",
+      "description": "Kort beskrivelse",
       "splitType": "${selectedSplit.name}",
       "workouts": [
         {
           "day": "Dag 1: ${selectedSplit.days[0]}",
-          "focus": "Hovedfokus for denne dagen",
+          "focus": "Hovedfokus",
           "exercises": [
-            {"name": "Øvelse 1", "sets": "3x8-12", "rest": "60s", "tips": "Tekniske tips", "alternatives": "Alternativer", "equipment": "Utstyr"},
-            {"name": "Øvelse 2", "sets": "3x8-12", "rest": "60s", "tips": "Tekniske tips", "alternatives": "Alternativer", "equipment": "Utstyr"},
-            {"name": "Øvelse 3", "sets": "3x8-12", "rest": "60s", "tips": "Tekniske tips", "alternatives": "Alternativer", "equipment": "Utstyr"},
-            {"name": "Øvelse 4", "sets": "3x8-12", "rest": "60s", "tips": "Tekniske tips", "alternatives": "Alternativer", "equipment": "Utstyr"},
-            {"name": "Øvelse 5", "sets": "3x8-12", "rest": "60s", "tips": "Tekniske tips", "alternatives": "Alternativer", "equipment": "Utstyr"}
+            {"name": "Øvelse", "sets": "3x8-12", "rest": "60s", "tips": "Tips", "alternatives": "Alternativer", "equipment": "Utstyr", "description": "Detaljert beskrivelse av øvelsen", "muscleGroups": ["Muskelgruppe1", "Muskelgruppe2"], "benefits": "Fordeler med øvelsen"}
           ]
         }
       ],
-      "progression": "Hvordan øke vekt/intensitet over tid",
-      "safety": "Viktige sikkerhetstips spesifikt for denne personen"
-    }
-    
-    OBLIGATORISK: 
-    - Inkluder nøyaktig ${trainingDays} treningsdager (ingen hviledager)
-    - Hver treningsdag skal ha nøyaktig ${requiredExercises} øvelser
-    - Returner KUN gyldig JSON
-    - Ingen kommentarer eller ekstra tekst
-    - Fullfør alle ${trainingDays} treningsdager i workouts-arrayet`;
+      "progression": "Progresjon",
+      "safety": "Sikkerhet"
+    }`;
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-3.5-turbo", // Raskere modell for bedre ytelse
       messages: [
         {
           role: "system",
-          content: `Du er en ekspert treningsinstruktør og fysioterapeut med 15+ års erfaring. Du lager personlige, sikre og effektive treningsplaner basert på brukerens behov og forutsetninger.
+          content: `Du er en ekspert treningsinstruktør. Lag personlige treningsplaner basert på brukerens behov.
 
 VIKTIGE PRINSIPPER:
 1. SIKKERHET FØRST - Unngå øvelser som kan forverre skader
-2. KONKRETE ØVELSER - Gi spesifikke øvelsesnavn, ikke generiske beskrivelser
-3. DETALJERTE INSTRUKSJONER - Forklar nøyaktig hvordan hver øvelse utføres
-4. PROGRESJON - Inkluder hvordan man øker vekt/intensitet over tid
-5. ALTERNATIVER - Gi alternative øvelser for forskjellige utstyr/skader
-6. PERSONLIG TILPASSING - Tilpass til alder, fitnessnivå og mål
-7. SPORTSPESIFIKK TRENING - Hvis mål er sportspesifikk:
-   - Fokuser på funksjonelle bevegelser som forbedrer sportens ytelse
-   - Inkluder øvelser som etterligner sportens krav
-   - Tilpass styrke, utholdenhet, eksplosivitet og koordinasjon
-   - Vurder sportspesifikke muskelgrupper og bevegelsesmønstre
-   - Inkluder plyometriske og agilitetsøvelser når relevant
-   - Fokuser på core-stabilitet og funksjonell styrke
-8. ANTALL ØVELSER - Dette er KRITISK! Inkluder alltid riktig antall øvelser basert på treningslengde:
-   - 15-30 min: 4-5 øvelser (ALDRI 3!)
-   - 30-60 min: 5-6 øvelser (ALDRI 3!)
-   - 60-90 min: 6-7 øvelser (ALDRI 3!)
-   - 90+ min: 7-8 øvelser (ALDRI 3!)
-   
-   Hvis du gir 3 øvelser per dag, har du feilet. Du MÅ gi det riktige antallet!
-
+2. KONKRETE ØVELSER - Gi spesifikke øvelsesnavn
+3. PERSONLIG TILPASSING - Tilpass til alder, fitnessnivå og mål
+4. SPORTSPESIFIKK TRENING - Hvis mål er sportspesifikk, fokuser på funksjonelle bevegelser
+5. ANTALL ØVELSER - KRITISK! Inkluder riktig antall øvelser:
+   - LØPEDAGER (inneholder "Løp", "Intervall", "Tempo", "Lang"): 1-2 øvelser
+   - STYRKEDAGER: 15-30 min: 4-5 øvelser, 30-60 min: 5-6 øvelser, 60-90 min: 6-7 øvelser
+   - HVILEDAGER (inneholder "Hvile", "Rest", "Gjenoppretting"): INGEN øvelser (tom array)
+6. LØPETRENING - For løpedager: Fokuser på løping som hovedaktivitet, legg til 1-2 støtteøvelser
+7. HVILEDAGER - For hviledager: Kun beskrivelse, ingen øvelser i exercises-array
+8. DETALJERTE BESKRIVELSER - For hver øvelse, inkluder:
+   - "description": Detaljert beskrivelse av hvordan øvelsen utføres
+   - "muscleGroups": Hvilke muskelgrupper som trenes
+   - "benefits": Fordeler med øvelsen
 9. JSON FORMAT - KRITISK! Returner KUN gyldig JSON:
    - Ingen kommentarer (// eller /* */)
    - Ingen ekstra tekst før eller etter JSON
+   - Alle nøkler må være i anførselstegn: "key"
+   - Alle strenger må være i anførselstegn: "value"
+   - Ingen trailing commas (komma før } eller ])
    - Fullfør alle treningsdager i workouts-arrayet
    - Gyldig JSON-syntaks
 
-Svar alltid på norsk med profesjonell, men forståelig tone.`
+VIKTIG: Sjekk at JSON er gyldig før du sender svar!
+
+Svar på norsk.`
         },
         {
           role: "user",
           content: prompt
         }
       ],
-      temperature: 0.3,
-      max_tokens: 4000
+      temperature: 0.2, // Lavere temperatur for mer konsistente svar
+      max_tokens: 2000 // Redusert for raskere respons
     });
 
     const rawResponse = completion.choices[0].message.content;
@@ -340,12 +418,212 @@ Svar alltid på norsk med profesjonell, men forståelig tone.`
       // Remove any comments (// ... or /* ... */)
       cleanedResponse = cleanedResponse.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
       
+      // Fix common JSON issues
+      cleanedResponse = cleanedResponse
+        .replace(/,\s*}/g, '}')  // Remove trailing commas before }
+        .replace(/,\s*]/g, ']')  // Remove trailing commas before ]
+        .replace(/([{,]\s*)(\w+):/g, '$1"$2":')  // Quote unquoted keys
+        .replace(/:\s*([^",{\[\s][^,}\]\s]*)/g, ': "$1"')  // Quote unquoted string values
+        .replace(/:\s*"([^"]*)"\s*([,}])/g, ': "$1"$2')  // Ensure proper string formatting
+        .replace(/,\s*,/g, ',')  // Remove double commas
+        .replace(/:\s*,\s*/g, ': null, ')  // Replace empty values with null
+        .replace(/:\s*,\s*([}\]])/g, ': null$1')  // Replace trailing empty values
+        .replace(/\n/g, ' ')  // Replace newlines with spaces
+        .replace(/\s+/g, ' ')  // Normalize whitespace
+        .replace(/,(\s*[}\]])/g, '$1');  // Remove trailing commas again
+      
+      console.log('Attempting to parse cleaned response...');
+      console.log('Cleaned response preview:', cleanedResponse.substring(0, 500));
       response = JSON.parse(cleanedResponse);
+      console.log('Successfully parsed JSON on first attempt!');
     } catch (parseError) {
       console.error('JSON parsing error:', parseError);
       console.error('Raw response that failed to parse:', rawResponse);
       console.error('Cleaned response:', cleanedResponse);
-      throw new Error(`JSON parsing failed: ${parseError.message}. Raw response: ${rawResponse.substring(0, 200)}...`);
+      console.error('Parse error details:', parseError.message);
+      
+      // Try to fix the JSON by attempting a more aggressive cleanup
+      try {
+        console.log('Attempting aggressive JSON cleanup...');
+        
+        // Extract just the JSON part more aggressively
+        let jsonStart = cleanedResponse.indexOf('{');
+        let jsonEnd = cleanedResponse.lastIndexOf('}');
+        
+        if (jsonStart !== -1 && jsonEnd !== -1) {
+          let aggressiveCleanup = cleanedResponse.substring(jsonStart, jsonEnd + 1);
+          
+          // More aggressive fixes
+          aggressiveCleanup = aggressiveCleanup
+            .replace(/,(\s*[}\]])/g, '$1')  // Remove trailing commas
+            .replace(/([{,]\s*)(\w+)\s*:/g, '$1"$2":')  // Quote keys
+            .replace(/:\s*([^",{\[\s\n][^,}\]\s\n]*?)(\s*[,}\]])/g, ': "$1"$2')  // Quote values
+            .replace(/\n/g, ' ')  // Replace newlines with spaces
+            .replace(/\s+/g, ' ')  // Normalize whitespace
+            .replace(/,(\s*[}\]])/g, '$1')  // Remove trailing commas again
+            .replace(/([{,]\s*)(\w+)\s*:/g, '$1"$2":')  // Quote keys again
+            .replace(/:\s*([^",{\[\s][^,}\]\s]*?)(\s*[,}\]])/g, ': "$1"$2')  // Quote values again
+            .replace(/,\s*,/g, ',')  // Remove double commas
+            .replace(/:\s*,\s*/g, ': null, ')  // Replace empty values with null
+            .replace(/:\s*,\s*([}\]])/g, ': null$1');  // Replace trailing empty values
+          
+          console.log('Aggressive cleanup result:', aggressiveCleanup.substring(0, 500));
+          response = JSON.parse(aggressiveCleanup);
+          console.log('Successfully parsed with aggressive cleanup!');
+        } else {
+          throw parseError;
+        }
+      } catch (secondError) {
+        console.error('Aggressive cleanup also failed:', secondError);
+        
+        // Final fallback: try to extract and rebuild JSON manually
+        try {
+          console.log('Attempting manual JSON reconstruction...');
+          
+          // Extract key information manually
+          const titleMatch = rawResponse.match(/"title"\s*:\s*"([^"]*)"/);
+          const descriptionMatch = rawResponse.match(/"description"\s*:\s*"([^"]*)"/);
+          const splitTypeMatch = rawResponse.match(/"splitType"\s*:\s*"([^"]*)"/);
+          
+          if (titleMatch && descriptionMatch && splitTypeMatch) {
+            console.log('Found basic info, creating fallback JSON structure');
+            
+            // Generate correct number of workout days
+            const numDays = parseInt(trainingDays) || 3;
+            const workouts = [];
+            
+            // Get split template to generate proper workout days
+            const splitTemplate = getSplitTemplate(finalWorkoutSplit, numDays);
+            
+            for (let i = 0; i < numDays; i++) {
+              const dayName = splitTemplate.days[i] || `Dag ${i + 1}: Treningsøkt`;
+              const targetExercises = availableTime <= 30 ? 4 : availableTime <= 60 ? 5 : availableTime <= 90 ? 6 : 7;
+              
+              // Generate exercises for this day
+              const exercises = [];
+              
+              // Check if this is a running day
+              const isRunningDay = dayName.toLowerCase().includes('løp') || 
+                                  dayName.toLowerCase().includes('intervall') || 
+                                  dayName.toLowerCase().includes('tempo') || 
+                                  dayName.toLowerCase().includes('lang');
+              
+              // Check if this is a rest day
+              const isRestDay = dayName.toLowerCase().includes('hvile') || 
+                               dayName.toLowerCase().includes('rest') || 
+                               dayName.toLowerCase().includes('gjenoppretting');
+              
+              if (isRestDay) {
+                // Rest day - no exercises
+                exercises.length = 0;
+              } else if (isRunningDay) {
+                // Running day - 1-2 exercises
+                exercises.push(
+                  {
+                    name: "Lang Løp",
+                    sets: "1x5km",
+                    rest: "5 minutter",
+                    tips: "Hold jevn tempo",
+                    alternatives: "Kortere distanse",
+                    equipment: "Løpesko",
+                    description: "Start med 5 min oppvarming i lett tempo. Hold jevn fart gjennom hele løpet. Slutt med 5 min nedkjøling.",
+                    muscleGroups: ["Ben", "Core", "Hjertemuskel"],
+                    benefits: "Forbedrer utholdenhet, kardiovaskulær helse og mental styrke"
+                  }
+                );
+              } else {
+                // Strength day - full number of exercises
+                const strengthExercises = [
+                  {
+                    name: "Push-ups",
+                    sets: "3x8-12",
+                    rest: "60s",
+                    tips: "Hold kroppen rett",
+                    alternatives: "Kne push-ups",
+                    equipment: "Kropp",
+                    description: "Start i plank-posisjon, senk kroppen til brystet nærmer seg bakken, press deg opp.",
+                    muscleGroups: ["Bryst", "Triceps", "Core"],
+                    benefits: "Bygger øvre kroppsstyrke og core-stabilitet"
+                  },
+                  {
+                    name: "Knebøy",
+                    sets: "3x8-12",
+                    rest: "90s",
+                    tips: "Dyb ned",
+                    alternatives: "Goblet squat",
+                    equipment: "Hantler",
+                    description: "Stå med føttene skulderbredde fra hverandre. Senk deg ned ved å bøye knærne til lårene er parallelle med bakken. Press deg opp til startposisjon.",
+                    muscleGroups: ["Quadriceps", "Glutes", "Hamstrings", "Core"],
+                    benefits: "Bygger benstyrke, forbedrer funksjonell styrke og stabilitet"
+                  },
+                  {
+                    name: "Plank",
+                    sets: "3x30-60s",
+                    rest: "45s",
+                    tips: "Hold kroppen rett",
+                    alternatives: "Kne plank",
+                    equipment: "Kropp",
+                    description: "Start i push-up posisjon, støtt deg på underarmene. Hold kroppen rett fra hode til hæl.",
+                    muscleGroups: ["Core", "Skuldre", "Glutes"],
+                    benefits: "Styrker core, forbedrer stabilitet og holdning"
+                  },
+                  {
+                    name: "Lunges",
+                    sets: "3x10 per bein",
+                    rest: "60s",
+                    tips: "Store skritt",
+                    alternatives: "Reverse lunges",
+                    equipment: "Kropp",
+                    description: "Ta et stort skritt fremover, senk bakkroppen til låret er parallelt med bakken. Press deg opp og bytt bein.",
+                    muscleGroups: ["Quadriceps", "Glutes", "Hamstrings", "Core"],
+                    benefits: "Bygger benstyrke, forbedrer balanse og koordinasjon"
+                  },
+                  {
+                    name: "Mountain Climbers",
+                    sets: "3x20",
+                    rest: "45s",
+                    tips: "Hold core stram",
+                    alternatives: "Slow mountain climbers",
+                    equipment: "Kropp",
+                    description: "Start i plank-posisjon, løft alternerende knær mot brystet i rask tempo.",
+                    muscleGroups: ["Core", "Skuldre", "Ben"],
+                    benefits: "Forbedrer kardiovaskulær kondisjon og core-styrke"
+                  }
+                ];
+                
+                // Add exercises up to target number
+                for (let j = 0; j < Math.min(targetExercises, strengthExercises.length); j++) {
+                  exercises.push(strengthExercises[j]);
+                }
+              }
+              
+              workouts.push({
+                day: `Dag ${i + 1}: ${dayName}`,
+                focus: isRestDay ? "Hvile og gjenoppretting" : 
+                       isRunningDay ? "Utholdenhet og aerob kapasitet" : 
+                       "Grunnleggende styrke",
+                exercises: exercises
+              });
+            }
+            
+            response = {
+              title: titleMatch[1],
+              description: descriptionMatch[1],
+              splitType: splitTypeMatch[1],
+              workouts: workouts,
+              progression: "Øk antall repetisjoner eller vekt gradvis over tid",
+              safety: "Start lett og fokuser på riktig teknikk"
+            };
+            
+            console.log('Successfully created fallback JSON structure');
+          } else {
+            throw secondError;
+          }
+        } catch (thirdError) {
+          console.error('Manual reconstruction also failed:', thirdError);
+          throw new Error(`JSON parsing failed: ${parseError.message}. Raw response: ${rawResponse.substring(0, 200)}...`);
+        }
+      }
     }
     
     // Post-process to ensure correct number of exercises
@@ -356,23 +634,67 @@ Svar alltid på norsk med profesjonell, men forståelig tone.`
       console.log(`Found ${response.workouts.length} workouts to process`);
       response.workouts.forEach((workout, dayIndex) => {
         const currentCount = workout.exercises ? workout.exercises.length : 0;
-        console.log(`Workout ${dayIndex}: ${workout.day} has ${currentCount} exercises (need ${targetExercises})`);
         
-        if (workout.exercises && workout.exercises.length < targetExercises) {
-          const needed = targetExercises - currentCount;
-          console.log(`Adding ${needed} exercises to ${workout.day}`);
-          
-          // Add additional exercises based on the workout type
-          const additionalExercises = getAdditionalExercises(workout.day, needed, equipment, fitnessLevel);
-          workout.exercises.push(...additionalExercises);
-          
-          console.log(`Added ${needed} exercises to ${workout.day} (was ${currentCount}, now ${workout.exercises.length})`);
+        // Check if this is a running day
+        const isRunningDay = workout.day && (
+          workout.day.toLowerCase().includes('løp') || 
+          workout.day.toLowerCase().includes('intervall') || 
+          workout.day.toLowerCase().includes('tempo') || 
+          workout.day.toLowerCase().includes('lang')
+        );
+        
+        // Check if this is a rest day
+        const isRestDay = workout.day && (
+          workout.day.toLowerCase().includes('hvile') || 
+          workout.day.toLowerCase().includes('rest') || 
+          workout.day.toLowerCase().includes('gjenoppretting') ||
+          workout.day.toLowerCase().includes('hviledag')
+        );
+        
+        if (isRestDay) {
+          console.log(`Rest day detected: ${workout.day} - ensuring no exercises (has ${currentCount})`);
+          // For rest days, ensure no exercises are added and remove any existing ones
+          if (workout.exercises && workout.exercises.length > 0) {
+            console.log(`Removing ${workout.exercises.length} exercises from rest day: ${workout.day}`);
+            workout.exercises = [];
+          }
+        } else if (isRunningDay) {
+          console.log(`Running day detected: ${workout.day} - allowing 1-2 exercises (has ${currentCount})`);
+          // For running days, 1-2 exercises is fine, don't add more
         } else {
-          console.log(`${workout.day} already has enough exercises (${currentCount})`);
+          console.log(`Strength day: ${workout.day} has ${currentCount} exercises (need ${targetExercises})`);
+          
+          if (workout.exercises && workout.exercises.length < targetExercises) {
+            const needed = targetExercises - currentCount;
+            console.log(`Adding ${needed} exercises to ${workout.day}`);
+            
+            // Add additional exercises based on the workout type
+            const additionalExercises = getAdditionalExercises(workout.day, needed, equipment, fitnessLevel);
+            workout.exercises.push(...additionalExercises);
+            
+            console.log(`Added ${needed} exercises to ${workout.day} (was ${currentCount}, now ${workout.exercises.length})`);
+          } else {
+            console.log(`${workout.day} already has enough exercises (${currentCount})`);
+          }
         }
       });
     } else {
       console.log('No workouts found in response');
+    }
+    
+    // Add auto-split information to response
+    if (useAutoSplit) {
+      response.autoSplitInfo = {
+        selectedSplit: finalWorkoutSplit,
+        reasoning: autoSplitReasoning,
+        wasAutoSelected: true
+      };
+    } else {
+      response.autoSplitInfo = {
+        selectedSplit: finalWorkoutSplit,
+        reasoning: 'Bruker valgte split selv',
+        wasAutoSelected: false
+      };
     }
     
     res.json({ success: true, workoutPlan: response });

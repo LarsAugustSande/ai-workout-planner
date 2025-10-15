@@ -61,6 +61,19 @@
   animation: float-gentle 3s ease-in-out infinite;
 }
 
+.footer-logo-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  filter: brightness(1.2);
+  transition: var(--transition-smooth);
+}
+
+.footer-logo-img:hover {
+  transform: scale(1.05);
+  filter: brightness(1.4);
+}
+
 @keyframes float-gentle {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-5px); }

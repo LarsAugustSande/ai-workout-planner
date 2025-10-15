@@ -1,9 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FaBrain, FaGithub, FaLinkedin, FaTwitter, FaEnvelope, FaHeart, FaInstagram, FaFacebook } from 'react-icons/fa';
+import { useDarkMode } from './DarkModeContext';
 import './Footer.css';
 
 function Footer({ onNavigate }) {
+  const { isDarkMode } = useDarkMode();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -11,7 +13,11 @@ function Footer({ onNavigate }) {
       <div className="footer-content">
         <div className="footer-section">
           <div className="footer-logo">
-            <FaBrain className="footer-logo-icon" />
+            <img 
+              src={isDarkMode ? '/logohvit.png' : '/logosort.png'} 
+              alt="Trenly Logo" 
+              className="footer-logo-img"
+            />
             <h3>Trenly</h3>
           </div>
           <p className="footer-tagline">

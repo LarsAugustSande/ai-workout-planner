@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaBrain, FaUtensils, FaDumbbell, FaChartLine, FaQuestionCircle, FaCalculator, FaHome, FaBars, FaTimes, FaMoon, FaSun, FaUser, FaSignOutAlt } from 'react-icons/fa';
+import { FaBrain, FaUtensils, FaDumbbell, FaChartLine, FaQuestionCircle, FaCalculator, FaHome, FaBars, FaTimes, FaMoon, FaSun, FaUser, FaSignOutAlt, FaTags } from 'react-icons/fa';
 import { useDarkMode } from './DarkModeContext';
 import { useAuth } from './AuthContext';
 import './Navigation.css';
@@ -15,6 +15,7 @@ const Navigation = ({ currentPage, onPageChange, isVisible = true }) => {
     { id: 'workout', label: 'Treningsplan', icon: <FaDumbbell />, color: 'var(--secondary)' },
     { id: 'nutrition', label: 'Kosthold', icon: <FaUtensils />, color: 'var(--accent)' },
     { id: 'progression', label: 'Progresjon', icon: <FaChartLine />, color: 'var(--tertiary)' },
+    { id: 'pricing', label: 'Priser', icon: <FaTags />, color: 'var(--gold)' },
     { id: 'bmi', label: 'BMI Kalkulator', icon: <FaCalculator />, color: 'var(--primary-light)' },
     { id: 'contact', label: 'Kontakt', icon: <FaQuestionCircle />, color: 'var(--secondary-light)' }
   ];
@@ -41,7 +42,11 @@ const Navigation = ({ currentPage, onPageChange, isVisible = true }) => {
       {/* Desktop Navigation */}
       <nav className="desktop-nav">
         <div className="nav-brand" onClick={() => handleNavClick('landing')} style={{ cursor: 'pointer' }}>
-          <FaBrain className="brand-icon" />
+          <img 
+            src={isDarkMode ? '/logohvit.png' : '/logosort.png'} 
+            alt="Trenly Logo" 
+            className="brand-logo"
+          />
           <span className="brand-text">Trenly</span>
         </div>
         <div className="nav-items">
@@ -109,7 +114,11 @@ const Navigation = ({ currentPage, onPageChange, isVisible = true }) => {
             >
               <div className="mobile-nav-header">
                 <div className="nav-brand">
-                  <FaBrain className="brand-icon" />
+                  <img 
+                    src={isDarkMode ? '/logohvit.png' : '/logosort.png'} 
+                    alt="Trenly Logo" 
+                    className="brand-logo"
+                  />
                   <span className="brand-text">Trenly</span>
                 </div>
                 <button
