@@ -95,10 +95,6 @@ function PricingPage({ onGetStarted }) {
       answer: 'Pro-planen støtter integrasjon med de fleste populære treningsklokker inkludert Garmin, Fitbit, Apple Watch (via Strava), Polar, Suunto, og flere. Vi legger stadig til støtte for flere enheter.'
     },
     {
-      question: 'Får jeg en prøveperiode?',
-      answer: 'Ja! Vi tilbyr 7 dagers gratis prøveperiode på begge planene, så du kan teste tjenesten risikofritt før du forplikter deg.'
-    },
-    {
       question: 'Hvordan fungerer den årlige betalingen?',
       answer: 'Ved årlig betaling sparer du penger sammenlignet med månedlig betaling. Du betaler for hele året på forhånd og får rabattert pris per måned.'
     }
@@ -128,25 +124,47 @@ function PricingPage({ onGetStarted }) {
 
   return (
     <div className="pricing-page">
-      <motion.div
-        className="pricing-container"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        {/* Header Section */}
-        <motion.div className="pricing-header" variants={itemVariants}>
-          <div className="pricing-badge">
-            <FaRocket />
-            <span>Velg din plan</span>
-          </div>
-          <h1 className="pricing-title">
-            Invester i din <span className="gradient-text">helse</span> og <span className="gradient-text">fremtid</span>
-          </h1>
-          <p className="pricing-subtitle">
-            Få tilgang til AI-drevet treningsplanlegging, kostholdsråd og progresjonssporing. 
-            Velg planen som passer best for deg.
-          </p>
+      <header className="header">
+        <div className="container">
+          <motion.div 
+            className="header-content"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="logo">
+              <img 
+                src="/logotekstsort.png" 
+                alt="Trenly Logo" 
+                className="header-logo"
+              />
+            </div>
+            <p className="subtitle">Priser - Velg den abonnementsplanen som passer best for dine treningsmål og budsjett</p>
+          </motion.div>
+        </div>
+      </header>
+
+      <main className="main">
+        <div className="container">
+          <motion.div
+            className="pricing-container"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            {/* Header Section */}
+            <motion.div className="pricing-header" variants={itemVariants}>
+              <div className="pricing-badge">
+                <FaRocket />
+                <span>Velg din plan</span>
+              </div>
+              <h1 className="pricing-title">
+                Invester i din <span className="gradient-text">helse</span> og <span className="gradient-text">fremtid</span>
+              </h1>
+              <p className="pricing-subtitle">
+                Få tilgang til AI-drevet treningsplanlegging, kostholdsråd og progresjonssporing. 
+                Velg planen som passer best for deg.
+              </p>
           
           {/* Billing Toggle */}
           <motion.div 
@@ -307,18 +325,20 @@ function PricingPage({ onGetStarted }) {
         <motion.div className="pricing-cta-section" variants={itemVariants}>
           <div className="cta-content">
             <h2>Klar til å starte?</h2>
-            <p>Prøv gratis i 7 dager - ingen kredittkort nødvendig</p>
+            <p>Velg den planen som passer best for dine treningsmål</p>
             <motion.button
               className="cta-button"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => onGetStarted && onGetStarted('pro')}
             >
-              Start gratis prøveperiode
+              Velg Pro Plan
             </motion.button>
           </div>
         </motion.div>
-      </motion.div>
+          </motion.div>
+        </div>
+      </main>
     </div>
   );
 }

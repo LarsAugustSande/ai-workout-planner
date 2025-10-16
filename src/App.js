@@ -179,7 +179,7 @@ function App() {
         doc.rect(0, yPosition - 15, pageWidth, 15, 'F');
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(fontSize);
-        doc.setFont('helvetica', 'bold');
+      doc.setFont('helvetica', 'bold');
         doc.text(text, 20, yPosition - 5);
         doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
         yPosition += 25;
@@ -296,8 +296,8 @@ function App() {
       doc.text('Generert av Trenly AI', pageWidth/2, pageHeight - 30, { align: 'center' });
       
       // Start new page for workouts
-      doc.addPage();
-      yPosition = 30;
+          doc.addPage();
+          yPosition = 30;
       
       // Workouts section header
       addColoredHeader('TRENINGSPLAN', colors.primary, 20);
@@ -385,8 +385,8 @@ function App() {
               
               doc.setFontSize(9);
               doc.setTextColor(colors.text[0], colors.text[1], colors.text[2]);
-              
-              if (exercise.tips) {
+            
+            if (exercise.tips) {
                 doc.setFont('helvetica', 'bold');
                 doc.text('Tips:', 35, yPosition);
                 doc.setFont('helvetica', 'normal');
@@ -416,9 +416,9 @@ function App() {
                 const cleanMuscles = exercise.muscleGroups.map(m => cleanText(m)).join(', ');
                 doc.text(cleanMuscles, 35, yPosition + 4);
                 yPosition += 8;
-              }
-              
-              yPosition += 5;
+            }
+            
+            yPosition += 5;
             }
           });
         } else {
@@ -527,7 +527,7 @@ function App() {
       <>
         <LandingPage 
           onGetStarted={() => setCurrentPage('workout')} 
-          onContact={() => setCurrentPage('contact')}
+          onContact={() => setCurrentPage('contact')} 
           onPricing={() => setCurrentPage('pricing')}
         />
         <Footer onNavigate={setCurrentPage} />
@@ -693,9 +693,13 @@ function App() {
             transition={{ duration: 0.6 }}
           >
             <div className="logo">
-              <h1>Trenly</h1>
+              <img 
+                src="/logotekstsort.png" 
+                alt="Trenly Logo" 
+                className="header-logo"
+              />
             </div>
-            <p className="subtitle">Få en personlig treningsplan skapt av AI basert på dine mål og forutsetninger</p>
+            <p className="subtitle">Din personlige AI-trener som skaper skreddersydde treningsplaner basert på dine mål, erfaring og tilgjengelig utstyr</p>
           </motion.div>
         </div>
       </header>
@@ -883,11 +887,11 @@ function App() {
                     {/* Manual Split Selection (only shown when manual is selected) */}
                     {!useAutoSplit && (
                       <div className="manual-split-selection">
-                        <select name="workoutSplit" value={formData.workoutSplit} onChange={handleInputChange}>
-                          <option value="push_pull_legs">Push/Pull/Legs</option>
-                          <option value="upper_lower">Upper/Lower</option>
-                          <option value="full_body">Full Body</option>
-                          <option value="bro_split">Bro Split</option>
+                      <select name="workoutSplit" value={formData.workoutSplit} onChange={handleInputChange}>
+                        <option value="push_pull_legs">Push/Pull/Legs</option>
+                        <option value="upper_lower">Upper/Lower</option>
+                        <option value="full_body">Full Body</option>
+                        <option value="bro_split">Bro Split</option>
                           <option value="cardio_focused">Kardio-fokusert</option>
                           <option value="running_focused">Løpe-fokusert</option>
                           <option value="strength_focused">Styrke-fokusert</option>
@@ -895,8 +899,8 @@ function App() {
                           <option value="powerlifting">Powerlifting</option>
                           <option value="bodybuilding">Bodybuilding</option>
                           <option value="functional">Funksjonell trening</option>
-                          <option value="custom">Tilpasset</option>
-                        </select>
+                        <option value="custom">Tilpasset</option>
+                      </select>
                         
                         {/* Custom Split Input */}
                         {formData.workoutSplit === 'custom' && (
@@ -959,10 +963,10 @@ function App() {
                       <div className="auto-split-info">
                         <div className="auto-split-badge">
                           <span>AI vil automatisk velge optimal split</span>
-                        </div>
-                        <small className="form-hint">
+                    </div>
+                    <small className="form-hint">
                           Basert på antall treningsdager, fitnessnivå og mål vil AI velge den beste split-strukturen for deg
-                        </small>
+                    </small>
                       </div>
                     )}
 
@@ -1148,7 +1152,7 @@ function App() {
                             const isExpanded = expandedExercises[exerciseKey];
                             
                             return (
-                              <div key={exIndex} className="exercise">
+                            <div key={exIndex} className="exercise">
                                 <div 
                                   className="exercise-header"
                                   onClick={(e) => {
@@ -1168,11 +1172,11 @@ function App() {
                                   }}
                                   style={{ cursor: 'pointer' }}
                                 >
-                                  <div className="exercise-name">{exercise.name}</div>
+                                <div className="exercise-name">{exercise.name}</div>
                                   <div className="exercise-header-right">
-                                    {exercise.equipment && (
-                                      <span className="equipment-tag">{exercise.equipment}</span>
-                                    )}
+                                {exercise.equipment && (
+                                  <span className="equipment-tag">{exercise.equipment}</span>
+                                )}
                                     <span 
                                       className={`exercise-expand-icon ${isExpanded ? 'expanded' : ''}`}
                                       data-expanded={isExpanded}
@@ -1197,11 +1201,11 @@ function App() {
                                       ▼
                                     </span>
                                   </div>
-                                </div>
-                                <div className="exercise-details">
-                                  <span className="sets">{exercise.sets}</span>
-                                  <span className="rest">Hvile: {exercise.rest}</span>
-                                </div>
+                              </div>
+                              <div className="exercise-details">
+                                <span className="sets">{exercise.sets}</span>
+                                <span className="rest">Hvile: {exercise.rest}</span>
+                              </div>
                                 
                                 {isExpanded && (
                                   <motion.div 
@@ -1236,20 +1240,20 @@ function App() {
                                       </div>
                                     )}
                                     
-                                    {exercise.tips && (
-                                      <div className="exercise-tips">
+                              {exercise.tips && (
+                                <div className="exercise-tips">
                                         <strong>Tips:</strong> {exercise.tips}
-                                      </div>
-                                    )}
+                                </div>
+                              )}
                                     
-                                    {exercise.alternatives && (
-                                      <div className="exercise-alternatives">
-                                        <strong>🔄 Alternativer:</strong> {exercise.alternatives}
-                                      </div>
+                              {exercise.alternatives && (
+                                <div className="exercise-alternatives">
+                                  <strong>🔄 Alternativer:</strong> {exercise.alternatives}
+                                </div>
                                     )}
                                   </motion.div>
-                                )}
-                              </div>
+                              )}
+                            </div>
                             );
                           })
                         ) : (
@@ -1303,9 +1307,13 @@ function App() {
             transition={{ duration: 0.6 }}
           >
             <div className="logo">
-              <h1>Trenly</h1>
+              <img 
+                src="/logotekstsort.png" 
+                alt="Trenly Logo" 
+                className="header-logo"
+              />
             </div>
-            <p className="subtitle">Få en personlig treningsplan skapt av AI basert på dine mål og forutsetninger</p>
+            <p className="subtitle">Din personlige AI-trener som skaper skreddersydde treningsplaner basert på dine mål, erfaring og tilgjengelig utstyr</p>
           </motion.div>
         </div>
       </header>

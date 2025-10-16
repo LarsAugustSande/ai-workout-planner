@@ -128,21 +128,28 @@ const BMICalculator = ({ onBack, onHome }) => {
 
   return (
     <div className="bmi-calculator-page">
-      <div className="bmi-header">
-        <div className="header-content">
-          <div className="header-left">
-            <motion.div 
-              className="logo-icon"
-              animate={{ rotate: [0, 10, -10, 0] }}
-              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-            >
-              <FaCalculator />
-            </motion.div>
-            <div>
-              <h1>BMI Kalkulator</h1>
-              <p>Beregn din Body Mass Index og få personlige anbefalinger</p>
+      <header className="header">
+        <div className="container">
+          <motion.div 
+            className="header-content"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="logo">
+              <img 
+                src="/logotekstsort.png" 
+                alt="Trenly Logo" 
+                className="header-logo"
+              />
             </div>
-          </div>
+            <p className="subtitle">BMI Kalkulator - Beregn din kroppsmasseindeks og få personlige helseanbefalinger tilpasset dine treningsmål</p>
+          </motion.div>
+        </div>
+      </header>
+
+      <main className="main">
+        <div className="container">
           <div className="header-actions">
             {onBack && (
               <motion.button
@@ -167,10 +174,7 @@ const BMICalculator = ({ onBack, onHome }) => {
               </motion.button>
             )}
           </div>
-        </div>
-      </div>
 
-      <main className="bmi-main">
         <div className="bmi-content">
           <div className="bmi-form-section">
             <div className="bmi-form">
@@ -325,6 +329,7 @@ const BMICalculator = ({ onBack, onHome }) => {
               </div>
             </div>
           </div>
+        </div>
         </div>
       </main>
     </div>

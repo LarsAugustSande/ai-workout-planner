@@ -138,21 +138,28 @@ const ProgressionTracker = ({ onBack }) => {
 
   return (
     <div className="progression-tracker">
-      <div className="progression-header">
-        <div className="header-content">
-          <div className="header-left">
-            <motion.div 
-              className="logo-icon"
-              animate={{ rotate: [0, 10, -10, 0] }}
-              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-            >
-              <FaChartLine />
-            </motion.div>
-            <div>
-              <h1>Progresjonssporing</h1>
-              <p>Track din fremgang og se resultatene</p>
+      <header className="header">
+        <div className="container">
+          <motion.div 
+            className="header-content"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="logo">
+              <img 
+                src="/logotekstsort.png" 
+                alt="Trenly Logo" 
+                className="header-logo"
+              />
             </div>
-          </div>
+            <p className="subtitle">Progresjonssporing - Følg din treningsreise og se konkrete resultater over tid med detaljert statistikk og fremgangsanalyse</p>
+          </motion.div>
+        </div>
+      </header>
+
+      <main className="main">
+        <div className="container">
           <div className="header-actions">
             <motion.button
               className="add-workout-btn"
@@ -175,10 +182,6 @@ const ProgressionTracker = ({ onBack }) => {
               </motion.button>
             )}
           </div>
-        </div>
-      </div>
-
-      <main className="progression-main">
         {showAddForm && (
           <motion.div 
             className="add-workout-form"
@@ -439,6 +442,7 @@ const ProgressionTracker = ({ onBack }) => {
               )}
             </>
           )}
+        </div>
         </div>
       </main>
     </div>

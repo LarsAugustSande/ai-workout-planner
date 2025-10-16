@@ -185,8 +185,7 @@ function PrivacyPolicy({ onBack }) {
             <h2>12. Kontakt oss</h2>
             <p>Hvis du har spørsmål om denne personvernerklæringen, kan du kontakte oss:</p>
             <div className="contact-info">
-              <p><strong>E-post:</strong> support@trenly.no</p>
-              <p><strong>Adresse:</strong> Trenly AS, Oslo, Norge</p>
+              <p><strong>E-post:</strong> larsaugustsande@gmail.com </p>
             </div>
           </section>
         </motion.div>

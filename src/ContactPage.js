@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaQuestionCircle, FaEnvelope, FaPhone, FaMapMarkerAlt, FaClock, FaInfoCircle, FaHeart } from 'react-icons/fa';
+import { FaQuestionCircle, FaEnvelope, FaInfoCircle, FaHeart } from 'react-icons/fa';
 import './ContactPage.css';
 
 const ContactPage = ({ onBack }) => {
@@ -37,47 +37,36 @@ const ContactPage = ({ onBack }) => {
     {
       icon: <FaEnvelope />,
       title: "E-post",
-      details: "kontakt@aiworkout.no",
+      details: "larsaugustsande@gmail.com",
       description: "Send oss en e-post, vi svarer innen 24 timer"
-    },
-    {
-      icon: <FaPhone />,
-      title: "Telefon",
-      details: "+47 123 45 678",
-      description: "Ring oss på hverdager 09:00-17:00"
-    },
-    {
-      icon: <FaMapMarkerAlt />,
-      title: "Adresse",
-      details: "Oslo, Norge",
-      description: "Vi er basert i Oslo, men hjelper brukere over hele landet"
-    },
-    {
-      icon: <FaClock />,
-      title: "Åpningstider",
-      details: "Man-Fre: 09:00-17:00",
-      description: "Lørdag: 10:00-15:00, Søndag: Stengt"
     }
   ];
 
 
   return (
     <div className="contact-page">
-      <div className="contact-header">
-        <div className="header-content">
-          <div className="header-left">
-            <motion.div 
-              className="logo-icon"
-              animate={{ rotate: [0, 10, -10, 0] }}
-              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-            >
-              <FaQuestionCircle />
-            </motion.div>
-            <div>
-              <h1>Kontakt & Support</h1>
-              <p>Vi er her for å hjelpe deg med å nå dine treningsmål</p>
+      <header className="header">
+        <div className="container">
+          <motion.div 
+            className="header-content"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="logo">
+              <img 
+                src="/logotekstsort.png" 
+                alt="Trenly Logo" 
+                className="header-logo"
+              />
             </div>
-          </div>
+            <p className="subtitle">Kontakt & Support - Vi er her for å hjelpe deg med å nå dine treningsmål og gi deg den beste treningserfaringen</p>
+          </motion.div>
+        </div>
+      </header>
+
+      <main className="main">
+        <div className="container">
           {onBack && (
             <motion.button
               className="back-btn"
@@ -89,10 +78,6 @@ const ContactPage = ({ onBack }) => {
               Tilbake til Hjem
             </motion.button>
           )}
-        </div>
-      </div>
-
-      <main className="contact-main">
         <div className="tab-navigation">
           <motion.button
             className={`tab-btn ${activeTab === 'faq' ? 'active' : ''}`}
@@ -197,6 +182,7 @@ const ContactPage = ({ onBack }) => {
             </motion.div>
           )}
 
+        </div>
         </div>
       </main>
     </div>

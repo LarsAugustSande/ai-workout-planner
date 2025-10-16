@@ -136,7 +136,7 @@ function Footer({ onNavigate }) {
           <ul className="footer-links">
             <li className="footer-contact-item">
               <FaEnvelope className="footer-icon" />
-              <span>support@trenly.no</span>
+              <span>larsaugustsande@gmail.com</span>
             </li>
           </ul>
           <h4 style={{ marginTop: '1.5rem' }}>Juridisk</h4>

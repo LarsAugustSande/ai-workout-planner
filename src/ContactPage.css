@@ -1,27 +1,11 @@
 /* Contact Page Styles */
 .contact-page {
   min-height: 100vh;
-  background: var(--bg-primary);
   color: var(--text);
   position: relative;
   overflow-x: hidden;
 }
 
-.contact-page::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(ellipse at 20% 20%, rgba(30, 58, 138, 0.1) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 80%, rgba(5, 150, 105, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse at 40% 60%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
-    var(--gradient-soft);
-  pointer-events: none;
-  z-index: -1;
-}
 
 .contact-header {
   background: var(--gradient-primary);

@@ -222,7 +222,7 @@ function NutritionPlanner({ onBack }) {
 
   return (
     <div className="nutrition-planner-page">
-      <header className="nutrition-header">
+      <header className="header">
         <div className="container">
           <motion.div 
             className="header-content"
@@ -231,27 +231,30 @@ function NutritionPlanner({ onBack }) {
             transition={{ duration: 0.6 }}
           >
             <div className="logo">
-              <h1>AI Kostholdsplanlegger</h1>
+              <img 
+                src="/logotekstsort.png" 
+                alt="Trenly Logo" 
+                className="header-logo"
+              />
             </div>
-            <p className="subtitle">Få en personlig måltidsplan skapt av AI basert på dine treningsmål og preferanser</p>
-            
-            {onBack && (
-              <motion.button
-                className="back-btn"
-                onClick={onBack}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <FaArrowLeft />
-                Tilbake til Treningsplan
-              </motion.button>
-            )}
+            <p className="subtitle">Kostholdsplanlegger - Få en komplett 7-dagers måltidsplan med makronæringsstoffer og kalorier tilpasset dine treningsmål</p>
           </motion.div>
         </div>
       </header>
 
-      <main className="nutrition-main">
+      <main className="main">
         <div className="container">
+          {onBack && (
+            <motion.button
+              className="back-btn"
+              onClick={onBack}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <FaArrowLeft />
+              Tilbake til Treningsplan
+            </motion.button>
+          )}
           {!mealPlan ? (
             <motion.div 
               className="form-section"
