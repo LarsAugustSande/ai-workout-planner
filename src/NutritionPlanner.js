@@ -14,7 +14,7 @@ function NutritionPlanner({ onBack }) {
     dietaryRestrictions: '',
     allergies: '',
     mealPreferences: 'balanced',
-    cookingTime: '30',
+    cookingTimePreference: 'medium',
     budget: 'medium'
   });
 
@@ -231,7 +231,6 @@ function NutritionPlanner({ onBack }) {
             transition={{ duration: 0.6 }}
           >
             <div className="logo">
-              <FaUtensils className="logo-icon" />
               <h1>AI Kostholdsplanlegger</h1>
             </div>
             <p className="subtitle">Få en personlig måltidsplan skapt av AI basert på dine treningsmål og preferanser</p>
@@ -328,19 +327,21 @@ function NutritionPlanner({ onBack }) {
                       <option value="strength">Styrke</option>
                     </select>
                     <small className="form-hint">
-                      💡 {getGoalDescription(nutritionForm.goals)}
+                      {getGoalDescription(nutritionForm.goals)}
                     </small>
                   </div>
 
                   <div className="form-group">
-                    <label>Koketid per dag</label>
-                    <select name="cookingTime" value={nutritionForm.cookingTime} onChange={handleInputChange}>
-                      <option value="15">15 min</option>
-                      <option value="30">30 min</option>
-                      <option value="45">45 min</option>
-                      <option value="60">1 time</option>
-                      <option value="90">1.5 timer</option>
+                    <label>Hvor mye tid ønsker du å bruke på matlaging?</label>
+                    <select name="cookingTimePreference" value={nutritionForm.cookingTimePreference} onChange={handleInputChange}>
+                      <option value="quick">Kort (5-15 min per måltid)</option>
+                      <option value="medium">Middels (15-30 min per måltid)</option>
+                      <option value="long">Lang (30+ min per måltid)</option>
+                      <option value="flexible">Fleksibel (blandet)</option>
                     </select>
+                    <small className="form-hint">
+                      Dette påvirker kompleksiteten og forberedelsestiden for måltidene
+                    </small>
                   </div>
 
                   <div className="form-group">

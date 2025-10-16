@@ -272,7 +272,7 @@ function LandingPage({ onGetStarted, onContact, onPricing }) {
               >
                 <div className="testimonial-rating">
                   {[...Array(testimonial.rating)].map((_, i) => (
-                    <span key={i}>⭐</span>
+                    <span key={i}>★</span>
                   ))}
                 </div>
                 <p>"{testimonial.text}"</p>

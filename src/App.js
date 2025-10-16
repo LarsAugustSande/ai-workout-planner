@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaBrain, FaUtensils, FaDumbbell, FaChartLine, FaDownload, FaQuestionCircle, FaCalculator } from 'react-icons/fa';
+import { FaUtensils, FaChartLine, FaDownload, FaQuestionCircle, FaCalculator } from 'react-icons/fa';
 import LandingPage from './LandingPage';
 import NutritionPlanner from './NutritionPlanner';
 import ProgressionTracker from './ProgressionTracker';
@@ -28,7 +28,9 @@ function App() {
     equipment: 'minimal',
     injuries: '',
     workoutSplit: 'push_pull_legs',
-    trainingDays: '3'
+    trainingDays: '3',
+    customSplit: '', // For custom split input
+    customSplitDays: [] // For custom split day selection
   });
 
   const [workoutPlan, setWorkoutPlan] = useState(null);
@@ -691,7 +693,6 @@ function App() {
             transition={{ duration: 0.6 }}
           >
             <div className="logo">
-              <FaBrain className="logo-icon" />
               <h1>Trenly</h1>
             </div>
             <p className="subtitle">Få en personlig treningsplan skapt av AI basert på dine mål og forutsetninger</p>
@@ -782,7 +783,7 @@ function App() {
                         className="sport-input"
                       />
                       <small className="form-hint">
-                        💡 Beskriv hvilken idrett du trener for, så tilpasser vi øvelsene deretter
+                        Beskriv hvilken idrett du trener for, så tilpasser vi øvelsene deretter
                       </small>
                     </div>
                   )}
@@ -853,7 +854,7 @@ function App() {
                           onChange={() => setUseAutoSplit(true)}
                         />
                         <label htmlFor="auto-split">
-                          <FaBrain className="toggle-icon" />
+                          <span className="toggle-icon">AI</span>
                           <div className="toggle-content">
                             <strong>Automatisk valg (anbefalt)</strong>
                             <small>AI velger optimal split basert på dine preferanser</small>
@@ -870,7 +871,7 @@ function App() {
                           onChange={() => setUseAutoSplit(false)}
                         />
                         <label htmlFor="manual-split">
-                          <FaDumbbell className="toggle-icon" />
+                          <span className="toggle-icon">Manual</span>
                           <div className="toggle-content">
                             <strong>Jeg velger selv</strong>
                             <small>For erfarne brukere som vet hva de vil ha</small>
@@ -887,8 +888,69 @@ function App() {
                           <option value="upper_lower">Upper/Lower</option>
                           <option value="full_body">Full Body</option>
                           <option value="bro_split">Bro Split</option>
+                          <option value="cardio_focused">Kardio-fokusert</option>
+                          <option value="running_focused">Løpe-fokusert</option>
+                          <option value="strength_focused">Styrke-fokusert</option>
+                          <option value="hybrid">Hybrid (Styrke + Kardio)</option>
+                          <option value="powerlifting">Powerlifting</option>
+                          <option value="bodybuilding">Bodybuilding</option>
+                          <option value="functional">Funksjonell trening</option>
                           <option value="custom">Tilpasset</option>
                         </select>
+                        
+                        {/* Custom Split Input */}
+                        {formData.workoutSplit === 'custom' && (
+                          <div className="custom-split-section">
+                            <div className="form-group">
+                              <label>Beskriv din tilpassede treningssplit:</label>
+                              <textarea
+                                name="customSplit"
+                                value={formData.customSplit}
+                                onChange={handleInputChange}
+                                placeholder="Eksempel: Mandag: Bryst og triceps, Tirsdag: Rygg og biceps, Onsdag: Ben, Torsdag: Skuldre, Fredag: Kardio"
+                                rows="3"
+                              />
+                            </div>
+                            
+                            <div className="form-group">
+                              <label>Velg treningsdager for din tilpassede split:</label>
+                              <div className="day-selection">
+                                {['Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lørdag', 'Søndag'].map((day, index) => (
+                                  <label key={day} className="day-checkbox">
+                                    <input
+                                      type="checkbox"
+                                      checked={formData.customSplitDays.includes(day)}
+                                      onChange={(e) => {
+                                        if (e.target.checked) {
+                                          setFormData(prev => ({
+                                            ...prev,
+                                            customSplitDays: [...prev.customSplitDays, day]
+                                          }));
+                                        } else {
+                                          setFormData(prev => ({
+                                            ...prev,
+                                            customSplitDays: prev.customSplitDays.filter(d => d !== day)
+                                          }));
+                                        }
+                                      }}
+                                    />
+                                    <span>{day}</span>
+                                  </label>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            <div className="custom-split-info">
+                              <p><strong>Tips for tilpasset split:</strong></p>
+                              <ul>
+                                <li>Beskriv hvilke muskelgrupper du vil trene på hvilke dager</li>
+                                <li>Inkluder hviledager for gjenoppretting</li>
+                                <li>Vurder å balansere push/pull-øvelser</li>
+                                <li>Legg til kardio hvis ønsket</li>
+                              </ul>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -896,11 +958,10 @@ function App() {
                     {useAutoSplit && (
                       <div className="auto-split-info">
                         <div className="auto-split-badge">
-                          <FaBrain />
                           <span>AI vil automatisk velge optimal split</span>
                         </div>
                         <small className="form-hint">
-                          💡 Basert på antall treningsdager, fitnessnivå og mål vil AI velge den beste split-strukturen for deg
+                          Basert på antall treningsdager, fitnessnivå og mål vil AI velge den beste split-strukturen for deg
                         </small>
                       </div>
                     )}
@@ -908,7 +969,7 @@ function App() {
                     {/* Manual Split Hint */}
                     {!useAutoSplit && (
                       <small className="form-hint">
-                        💡 Velg den split-strukturen som passer best for dine treningsdager og mål
+                        Velg den split-strukturen som passer best for dine treningsdager og mål
                       </small>
                     )}
                   </div>
@@ -923,7 +984,7 @@ function App() {
                       rows="4"
                     />
                     <small className="form-hint">
-                      💡 AI-en vil lage en personlig plan basert på dine spesifikke behov og mål
+                      AI-en vil lage en personlig plan basert på dine spesifikke behov og mål
                     </small>
                   </div>
                 </div>
@@ -945,7 +1006,6 @@ function App() {
                     </div>
                   ) : (
                     <>
-                      <FaBrain />
                       <span>Generer AI Treningsplan</span>
                     </>
                   )}
@@ -967,7 +1027,7 @@ function App() {
                     <span className="split-badge">{workoutPlan.splitType}</span>
                     {workoutPlan.autoSplitInfo && workoutPlan.autoSplitInfo.wasAutoSelected && (
                       <div className="auto-split-explanation">
-                        <FaBrain className="auto-split-icon" />
+                        <span className="auto-split-icon">AI</span>
                         <div className="auto-split-text">
                           <strong>AI valgte denne split-strukturen:</strong>
                           <p>{workoutPlan.autoSplitInfo.reasoning}</p>
@@ -1063,7 +1123,7 @@ function App() {
                       <div className="workout-title">
                         <h3>{workout.day}</h3>
                         {workout.focus && (
-                          <p className="workout-focus">🎯 {workout.focus}</p>
+                          <p className="workout-focus">{workout.focus}</p>
                         )}
                       </div>
                       <div className="workout-stats">
@@ -1153,14 +1213,14 @@ function App() {
                                   >
                                     {exercise.description && (
                                       <div className="exercise-description">
-                                        <strong>📋 Hvordan utføre:</strong>
+                                        <strong>Hvordan utføre:</strong>
                                         <p>{exercise.description}</p>
                                       </div>
                                     )}
                                     
                                     {exercise.muscleGroups && (
                                       <div className="exercise-muscle-groups">
-                                        <strong>💪 Muskler som trenes:</strong>
+                                        <strong>Muskler som trenes:</strong>
                                         <div className="muscle-tags">
                                           {exercise.muscleGroups.map((muscle, muscleIndex) => (
                                             <span key={muscleIndex} className="muscle-tag">{muscle}</span>
@@ -1171,14 +1231,14 @@ function App() {
                                     
                                     {exercise.benefits && (
                                       <div className="exercise-benefits">
-                                        <strong>✨ Fordeler:</strong>
+                                        <strong>Fordeler:</strong>
                                         <p>{exercise.benefits}</p>
                                       </div>
                                     )}
                                     
                                     {exercise.tips && (
                                       <div className="exercise-tips">
-                                        <strong>💡 Tips:</strong> {exercise.tips}
+                                        <strong>Tips:</strong> {exercise.tips}
                                       </div>
                                     )}
                                     
@@ -1194,12 +1254,12 @@ function App() {
                           })
                         ) : (
                           <div className="rest-day-content">
-                            <div className="rest-day-icon">😴</div>
+                            <div className="rest-day-icon">Hvile</div>
                             <div className="rest-day-description">
                               {workout.description || "Dette er en hviledag. Fokuser på hvile, gjenoppretting og næring. Du kan gjøre lett stretching eller gå en rolig tur, men unngå intens trening."}
                             </div>
                             <div className="rest-day-tips">
-                              <h4>💡 Hviledagstips:</h4>
+                              <h4>Hviledagstips:</h4>
                               <ul>
                                 <li>Få nok søvn (7-9 timer)</li>
                                 <li>Spis næringsrik mat</li>
@@ -1243,7 +1303,6 @@ function App() {
             transition={{ duration: 0.6 }}
           >
             <div className="logo">
-              <FaBrain className="logo-icon" />
               <h1>Trenly</h1>
             </div>
             <p className="subtitle">Få en personlig treningsplan skapt av AI basert på dine mål og forutsetninger</p>

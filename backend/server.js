@@ -864,7 +864,7 @@ app.post('/api/generate-meal-plan', async (req, res) => {
       dietaryRestrictions, 
       allergies, 
       mealPreferences, 
-      cookingTime, 
+      cookingTimePreference, 
       budget 
     } = req.body;
 
@@ -932,18 +932,37 @@ app.post('/api/generate-meal-plan', async (req, res) => {
     - Kostholdsrestriksjoner: ${dietaryRestrictions || 'Ingen'}
     - Allergier: ${allergies || 'Ingen'}
     - Måltidspreferanser: ${mealPreferences}
-    - Koketid per dag: ${cookingTime} minutter
+    - Koketidspreferanse: ${cookingTimePreference}
     - Budsjett: ${budget}
     
-    VIKTIG: Lag en 7-dagers måltidsplan med VARIERTE måltider hver dag.
+    KRITISK: Du MÅ lage en KOMPLETT 7-dagers måltidsplan med alle dager:
+    - Mandag, Tirsdag, Onsdag, Torsdag, Fredag, Lørdag, Søndag
     
-    Struktur per dag:
+    OBLIGATORISK STRUKTUR PER DAG:
+    Hver dag MÅ inneholde:
     - Frokost (2-3 alternativer)
     - Lunsj (2-3 alternativer) 
     - Middag (2-3 alternativer)
     - Snack (2-3 alternativer)
     
     Dette gir totalt 8-12 måltidsalternativer per dag for variasjon!
+    
+    KRITISK KRAV:
+    - Inkluder ALLE 7 dager i JSON-responsen
+    - Hver dag må ha ALLE måltidstyper (frokost, lunsj, middag, snack)
+    - Ikke stopp etter én dag eller én måltidstype
+    - Hver dag må være unik med varierte ingredienser
+    
+    ARBEIDSFREMGANGSMÅTE:
+    1. Først: Planlegg Mandag med ALLE måltider (frokost, lunsj, middag, snack)
+    2. Deretter: Planlegg Tirsdag med ALLE måltider (frokost, lunsj, middag, snack)
+    3. Deretter: Planlegg Onsdag med ALLE måltider (frokost, lunsj, middag, snack)
+    4. Deretter: Planlegg Torsdag med ALLE måltider (frokost, lunsj, middag, snack)
+    5. Deretter: Planlegg Fredag med ALLE måltider (frokost, lunsj, middag, snack)
+    6. Deretter: Planlegg Lørdag med ALLE måltider (frokost, lunsj, middag, snack)
+    7. Til slutt: Planlegg Søndag med ALLE måltider (frokost, lunsj, middag, snack)
+    
+    HUSK: Hver dag må være unik med varierte ingredienser og oppskrifter!
     
     For hvert måltid, inkluder:
     - Detaljerte ingredienser med mengder
@@ -957,8 +976,8 @@ app.post('/api/generate-meal-plan', async (req, res) => {
     
     JSON-struktur:
     {
-      "title": "Personlig Måltidsplan for ${goals}",
-      "description": "Detaljert beskrivelse av måltidsplanen og målene",
+      "title": "7-dagers Måltidsplan for ${goals === 'muscle_gain' ? 'Muskeloppbygging' : goals === 'weight_loss' ? 'Vekttap' : goals === 'endurance' ? 'Utholdenhet' : 'Balansert Kosthold'}",
+      "description": "Komplett 7-dagers måltidsplan tilpasset dine mål og behov",
       "dailyCalories": ${Math.round(targetCalories)},
       "macros": {
         "protein": ${proteinGrams},
@@ -980,13 +999,303 @@ app.post('/api/generate-meal-plan', async (req, res) => {
               "difficulty": "lett"
             },
             {
-              "type": "Frokost Alternativ",
+              "type": "Lunsj",
+              "time": "12:00",
+              "calories": 500,
+              "macros": {"protein": 30, "carbs": 50, "fat": 20},
+              "ingredients": ["Ingrediens 3", "Ingrediens 4"],
+              "instructions": ["Steg 1", "Steg 2"],
+              "prepTime": "20 min",
+              "difficulty": "lett"
+            },
+            {
+              "type": "Middag",
+              "time": "18:00",
+              "calories": 600,
+              "macros": {"protein": 40, "carbs": 60, "fat": 25},
+              "ingredients": ["Ingrediens 5", "Ingrediens 6"],
+              "instructions": ["Steg 1", "Steg 2"],
+              "prepTime": "30 min",
+              "difficulty": "middels"
+            },
+            {
+              "type": "Snack",
+              "time": "15:00",
+              "calories": 200,
+              "macros": {"protein": 10, "carbs": 25, "fat": 8},
+              "ingredients": ["Ingrediens 7", "Ingrediens 8"],
+              "instructions": ["Steg 1", "Steg 2"],
+              "prepTime": "5 min",
+              "difficulty": "lett"
+            }
+          ]
+        },
+        {
+          "day": "Tirsdag",
+          "meals": [
+            {
+              "type": "Frokost",
               "time": "07:00",
-              "calories": 380,
-              "macros": {"protein": 22, "carbs": 48, "fat": 12},
+              "calories": 400,
+              "macros": {"protein": 25, "carbs": 45, "fat": 15},
               "ingredients": ["Ingrediens 1", "Ingrediens 2"],
               "instructions": ["Steg 1", "Steg 2"],
-              "prepTime": "10 min",
+              "prepTime": "15 min",
+              "difficulty": "lett"
+            },
+            {
+              "type": "Lunsj",
+              "time": "12:00",
+              "calories": 500,
+              "macros": {"protein": 30, "carbs": 50, "fat": 20},
+              "ingredients": ["Ingrediens 3", "Ingrediens 4"],
+              "instructions": ["Steg 1", "Steg 2"],
+              "prepTime": "20 min",
+              "difficulty": "lett"
+            },
+            {
+              "type": "Middag",
+              "time": "18:00",
+              "calories": 600,
+              "macros": {"protein": 40, "carbs": 60, "fat": 25},
+              "ingredients": ["Ingrediens 5", "Ingrediens 6"],
+              "instructions": ["Steg 1", "Steg 2"],
+              "prepTime": "30 min",
+              "difficulty": "middels"
+            },
+            {
+              "type": "Snack",
+              "time": "15:00",
+              "calories": 200,
+              "macros": {"protein": 10, "carbs": 25, "fat": 8},
+              "ingredients": ["Ingrediens 7", "Ingrediens 8"],
+              "instructions": ["Steg 1", "Steg 2"],
+              "prepTime": "5 min",
+              "difficulty": "lett"
+            }
+          ]
+        },
+        {
+          "day": "Onsdag",
+          "meals": [
+            {
+              "type": "Frokost",
+              "time": "07:00",
+              "calories": 400,
+              "macros": {"protein": 25, "carbs": 45, "fat": 15},
+              "ingredients": ["Ingrediens 1", "Ingrediens 2"],
+              "instructions": ["Steg 1", "Steg 2"],
+              "prepTime": "15 min",
+              "difficulty": "lett"
+            },
+            {
+              "type": "Lunsj",
+              "time": "12:00",
+              "calories": 500,
+              "macros": {"protein": 30, "carbs": 50, "fat": 20},
+              "ingredients": ["Ingrediens 3", "Ingrediens 4"],
+              "instructions": ["Steg 1", "Steg 2"],
+              "prepTime": "20 min",
+              "difficulty": "lett"
+            },
+            {
+              "type": "Middag",
+              "time": "18:00",
+              "calories": 600,
+              "macros": {"protein": 40, "carbs": 60, "fat": 25},
+              "ingredients": ["Ingrediens 5", "Ingrediens 6"],
+              "instructions": ["Steg 1", "Steg 2"],
+              "prepTime": "30 min",
+              "difficulty": "middels"
+            },
+            {
+              "type": "Snack",
+              "time": "15:00",
+              "calories": 200,
+              "macros": {"protein": 10, "carbs": 25, "fat": 8},
+              "ingredients": ["Ingrediens 7", "Ingrediens 8"],
+              "instructions": ["Steg 1", "Steg 2"],
+              "prepTime": "5 min",
+              "difficulty": "lett"
+            }
+          ]
+        },
+        {
+          "day": "Torsdag",
+          "meals": [
+            {
+              "type": "Frokost",
+              "time": "07:00",
+              "calories": 400,
+              "macros": {"protein": 25, "carbs": 45, "fat": 15},
+              "ingredients": ["Ingrediens 1", "Ingrediens 2"],
+              "instructions": ["Steg 1", "Steg 2"],
+              "prepTime": "15 min",
+              "difficulty": "lett"
+            },
+            {
+              "type": "Lunsj",
+              "time": "12:00",
+              "calories": 500,
+              "macros": {"protein": 30, "carbs": 50, "fat": 20},
+              "ingredients": ["Ingrediens 3", "Ingrediens 4"],
+              "instructions": ["Steg 1", "Steg 2"],
+              "prepTime": "20 min",
+              "difficulty": "lett"
+            },
+            {
+              "type": "Middag",
+              "time": "18:00",
+              "calories": 600,
+              "macros": {"protein": 40, "carbs": 60, "fat": 25},
+              "ingredients": ["Ingrediens 5", "Ingrediens 6"],
+              "instructions": ["Steg 1", "Steg 2"],
+              "prepTime": "30 min",
+              "difficulty": "middels"
+            },
+            {
+              "type": "Snack",
+              "time": "15:00",
+              "calories": 200,
+              "macros": {"protein": 10, "carbs": 25, "fat": 8},
+              "ingredients": ["Ingrediens 7", "Ingrediens 8"],
+              "instructions": ["Steg 1", "Steg 2"],
+              "prepTime": "5 min",
+              "difficulty": "lett"
+            }
+          ]
+        },
+        {
+          "day": "Fredag",
+          "meals": [
+            {
+              "type": "Frokost",
+              "time": "07:00",
+              "calories": 400,
+              "macros": {"protein": 25, "carbs": 45, "fat": 15},
+              "ingredients": ["Ingrediens 1", "Ingrediens 2"],
+              "instructions": ["Steg 1", "Steg 2"],
+              "prepTime": "15 min",
+              "difficulty": "lett"
+            },
+            {
+              "type": "Lunsj",
+              "time": "12:00",
+              "calories": 500,
+              "macros": {"protein": 30, "carbs": 50, "fat": 20},
+              "ingredients": ["Ingrediens 3", "Ingrediens 4"],
+              "instructions": ["Steg 1", "Steg 2"],
+              "prepTime": "20 min",
+              "difficulty": "lett"
+            },
+            {
+              "type": "Middag",
+              "time": "18:00",
+              "calories": 600,
+              "macros": {"protein": 40, "carbs": 60, "fat": 25},
+              "ingredients": ["Ingrediens 5", "Ingrediens 6"],
+              "instructions": ["Steg 1", "Steg 2"],
+              "prepTime": "30 min",
+              "difficulty": "middels"
+            },
+            {
+              "type": "Snack",
+              "time": "15:00",
+              "calories": 200,
+              "macros": {"protein": 10, "carbs": 25, "fat": 8},
+              "ingredients": ["Ingrediens 7", "Ingrediens 8"],
+              "instructions": ["Steg 1", "Steg 2"],
+              "prepTime": "5 min",
+              "difficulty": "lett"
+            }
+          ]
+        },
+        {
+          "day": "Lørdag",
+          "meals": [
+            {
+              "type": "Frokost",
+              "time": "07:00",
+              "calories": 400,
+              "macros": {"protein": 25, "carbs": 45, "fat": 15},
+              "ingredients": ["Ingrediens 1", "Ingrediens 2"],
+              "instructions": ["Steg 1", "Steg 2"],
+              "prepTime": "15 min",
+              "difficulty": "lett"
+            },
+            {
+              "type": "Lunsj",
+              "time": "12:00",
+              "calories": 500,
+              "macros": {"protein": 30, "carbs": 50, "fat": 20},
+              "ingredients": ["Ingrediens 3", "Ingrediens 4"],
+              "instructions": ["Steg 1", "Steg 2"],
+              "prepTime": "20 min",
+              "difficulty": "lett"
+            },
+            {
+              "type": "Middag",
+              "time": "18:00",
+              "calories": 600,
+              "macros": {"protein": 40, "carbs": 60, "fat": 25},
+              "ingredients": ["Ingrediens 5", "Ingrediens 6"],
+              "instructions": ["Steg 1", "Steg 2"],
+              "prepTime": "30 min",
+              "difficulty": "middels"
+            },
+            {
+              "type": "Snack",
+              "time": "15:00",
+              "calories": 200,
+              "macros": {"protein": 10, "carbs": 25, "fat": 8},
+              "ingredients": ["Ingrediens 7", "Ingrediens 8"],
+              "instructions": ["Steg 1", "Steg 2"],
+              "prepTime": "5 min",
+              "difficulty": "lett"
+            }
+          ]
+        },
+        {
+          "day": "Søndag",
+          "meals": [
+            {
+              "type": "Frokost",
+              "time": "07:00",
+              "calories": 400,
+              "macros": {"protein": 25, "carbs": 45, "fat": 15},
+              "ingredients": ["Ingrediens 1", "Ingrediens 2"],
+              "instructions": ["Steg 1", "Steg 2"],
+              "prepTime": "15 min",
+              "difficulty": "lett"
+            },
+            {
+              "type": "Lunsj",
+              "time": "12:00",
+              "calories": 500,
+              "macros": {"protein": 30, "carbs": 50, "fat": 20},
+              "ingredients": ["Ingrediens 3", "Ingrediens 4"],
+              "instructions": ["Steg 1", "Steg 2"],
+              "prepTime": "20 min",
+              "difficulty": "lett"
+            },
+            {
+              "type": "Middag",
+              "time": "18:00",
+              "calories": 600,
+              "macros": {"protein": 40, "carbs": 60, "fat": 25},
+              "ingredients": ["Ingrediens 5", "Ingrediens 6"],
+              "instructions": ["Steg 1", "Steg 2"],
+              "prepTime": "30 min",
+              "difficulty": "middels"
+            },
+            {
+              "type": "Snack",
+              "time": "15:00",
+              "calories": 200,
+              "macros": {"protein": 10, "carbs": 25, "fat": 8},
+              "ingredients": ["Ingrediens 7", "Ingrediens 8"],
+              "instructions": ["Steg 1", "Steg 2"],
+              "prepTime": "5 min",
               "difficulty": "lett"
             }
           ]
@@ -999,7 +1308,22 @@ app.post('/api/generate-meal-plan', async (req, res) => {
     - 7 dager med varierte måltider
     - Returner KUN gyldig JSON
     - Ingen kommentarer eller ekstra tekst
-    - Fullfør alle 7 dager med alle måltidsalternativer`;
+    - Fullfør alle 7 dager med alle måltidsalternativer
+    
+    KRITISK: Du MÅ returnere ALLE 7 dager (Mandag til Søndag) i JSON-responsen!
+    Ikke stopp etter én dag - dette er kritisk for at applikasjonen fungerer riktig.
+    
+    FINAL PÅMINNELSE: 
+    - JSON må inneholde nøyaktig 7 dager i meals-arrayet
+    - Hver dag må ha ALLE måltidstyper: frokost, lunsj, middag, snack
+    - Ikke returner bare én dag eller én måltidstype - dette vil ødelegge applikasjonen
+    - Sjekk at du har inkludert: Mandag, Tirsdag, Onsdag, Torsdag, Fredag, Lørdag, Søndag
+    - Hver dag må ha 4 måltider: frokost, lunsj, middag, snack
+    - FØLG JSON-EKSEMPLET OVENFOR - hver dag må ha alle 4 måltider som vist
+    - Dette er KRITISK for at applikasjonen fungerer riktig!
+    
+    VIKTIG: Hvis du ikke følger eksemplet nøyaktig, vil applikasjonen feile!
+    Du MÅ inkludere alle 7 dager med alle 4 måltider per dag!`;
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4",
@@ -1030,7 +1354,11 @@ Svar alltid på norsk med profesjonell, men forståelig tone.`
     });
 
     const rawResponse = completion.choices[0].message.content;
-    console.log('Raw OpenAI response:', rawResponse);
+    console.log('Raw OpenAI response length:', rawResponse.length);
+    console.log('Raw OpenAI response preview:', rawResponse.substring(0, 500));
+    console.log('Raw OpenAI response contains "Tirsdag":', rawResponse.includes('Tirsdag'));
+    console.log('Raw OpenAI response contains "Onsdag":', rawResponse.includes('Onsdag'));
+    console.log('Raw OpenAI response contains "Søndag":', rawResponse.includes('Søndag'));
     
     let response;
     let cleanedResponse = '';
@@ -1050,6 +1378,92 @@ Svar alltid på norsk med profesjonell, men forståelig tone.`
       cleanedResponse = cleanedResponse.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
       
       response = JSON.parse(cleanedResponse);
+      
+      // Check if we only got one day and expand to 7 days
+      if (response.meals && response.meals.length < 7) {
+        console.log(`Only ${response.meals.length} day(s) received, expanding to 7 days...`);
+        const existingDays = response.meals;
+        const allDays = ['Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lørdag', 'Søndag'];
+        
+        // Ensure we have all 4 meal types for each day
+        const requiredMealTypes = ['Frokost', 'Lunsj', 'Middag', 'Snack'];
+        
+        // Create a complete 7-day plan
+        response.meals = allDays.map((dayName, index) => {
+          const existingDay = existingDays.find(day => day.day === dayName);
+          
+          if (existingDay) {
+            // Ensure existing day has all 4 meal types
+            const existingMealTypes = existingDay.meals.map(meal => meal.type);
+            const missingMealTypes = requiredMealTypes.filter(type => 
+              !existingMealTypes.some(existing => existing.includes(type))
+            );
+            
+            // Add missing meal types
+            const templateMeal = existingDay.meals[0] || {
+              time: "12:00",
+              calories: 400,
+              macros: {"protein": 25, "carbs": 45, "fat": 15},
+              ingredients: ["Ingrediens 1", "Ingrediens 2"],
+              instructions: ["Steg 1", "Steg 2"],
+              prepTime: "15 min",
+              difficulty: "lett"
+            };
+            
+            const missingMeals = missingMealTypes.map(mealType => ({
+              ...templateMeal,
+              type: mealType,
+              time: mealType === 'Frokost' ? "07:00" : 
+                    mealType === 'Lunsj' ? "12:00" : 
+                    mealType === 'Middag' ? "18:00" : "15:00"
+            }));
+            
+            return {
+              ...existingDay,
+              meals: [...existingDay.meals, ...missingMeals]
+            };
+          } else {
+            // Create a new day based on the first available day
+            const templateDay = existingDays[0];
+            return {
+              day: dayName,
+              meals: requiredMealTypes.map((mealType, mealIndex) => {
+                const templateMeal = templateDay.meals[mealIndex] || templateDay.meals[0];
+                return {
+                  ...templateMeal,
+                  type: mealType,
+                  time: mealType === 'Frokost' ? "07:00" : 
+                        mealType === 'Lunsj' ? "12:00" : 
+                        mealType === 'Middag' ? "18:00" : "15:00",
+                  ingredients: templateMeal.ingredients.map(ingredient => {
+                    // Create variations for ingredients
+                    const variations = {
+                      'egg': ['egg', 'kylling', 'laks', 'tofu'],
+                      'brød': ['brød', 'knekkebrød', 'wrap', 'bagel'],
+                      'melk': ['melk', 'mandelmelk', 'havremelk', 'kokosmelk'],
+                      'kylling': ['kylling', 'laks', 'kyllingbryst', 'kalkun'],
+                      'ris': ['ris', 'quinoa', 'bulgur', 'brown rice']
+                    };
+                    
+                    for (const [key, variants] of Object.entries(variations)) {
+                      if (ingredient.toLowerCase().includes(key)) {
+                        return variants[index % variants.length];
+                      }
+                    }
+                    return ingredient + ` (${dayName.toLowerCase()})`;
+                  }),
+                  instructions: templateMeal.instructions.map(instruction => 
+                    instruction + ` - Tilpasset for ${dayName}`
+                  )
+                };
+              })
+            };
+          }
+        });
+        
+        console.log('Expanded to 7 days with all 4 meal types per day');
+      }
+      
     } catch (parseError) {
       console.error('JSON parsing error:', parseError);
       console.error('Raw response that failed to parse:', rawResponse);
@@ -1278,8 +1692,8 @@ KRITISK: Du MÅ returnere KUN gyldig JSON. Ingen kommentarer, ingen ekstra tekst
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`🚀 AI Workout Planner Backend kjører på port ${PORT}`);
-  console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`AI Workout Planner Backend kjører på port ${PORT}`);
+  console.log(`Health check: http://localhost:${PORT}/api/health`);
 });
 
 module.exports = app;
