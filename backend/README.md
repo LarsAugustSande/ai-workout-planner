@@ -25,16 +25,14 @@ Trenly AI er en fullstendig AI-drevet treningsplattform som bruker avansert mask
 ### Backend Stack
 - **Node.js 18+** - Høyytelses JavaScript runtime
 - **Express.js** - Minimalistisk web framework
-- **OpenAI GPT-4** - Avansert AI for treningsplanlegging
-- **OpenAI GPT-3.5-turbo** - Optimalisert for rask analyse
+- **OpenAI GPT-4** - Avansert AI for alle trenings- og kostholdsrelaterte oppgaver
 - **CORS** - Sikker cross-origin kommunikasjon
 - **dotenv** - Sikker miljøvariabel-håndtering
 
 ### AI Modell Strategi
 ```javascript
-// Optimalisert AI-modell bruk
-GPT-4: Treningsplaner, kostholdsplaner, split-anbefalinger
-GPT-3.5-turbo: Bevegelsesanalyse, øvelsesanalyse
+// Optimalisert AI-modell bruk for best ytelse
+GPT-4: Treningsplaner, kostholdsplaner, split-anbefalinger, bevegelsesanalyse, øvelsesanalyse
 ```
 
 ## 🔧 API Endpoints
@@ -45,8 +43,8 @@ GPT-3.5-turbo: Bevegelsesanalyse, øvelsesanalyse
 | `/api/health` | GET | System health check | - |
 | `/api/generate-workout` | POST | Generer personlig treningsplan | GPT-4 |
 | `/api/generate-meal-plan` | POST | 7-dagers kostholdsplan | GPT-4 |
-| `/api/motion-feedback` | POST | AI-drevet bevegelsesanalyse | GPT-3.5-turbo |
-| `/api/analyze-exercise` | POST | Omfattende øvelsesanalyse | GPT-3.5-turbo |
+| `/api/motion-feedback` | POST | AI-drevet bevegelsesanalyse | GPT-4 |
+| `/api/analyze-exercise` | POST | Omfattende øvelsesanalyse | GPT-4 |
 | `/api/recommend-split` | POST | Intelligent split-anbefaling | GPT-4 |
 | `/api/edit-workout` | POST | Rediger eksisterende planer | GPT-4 |
 
@@ -116,16 +114,17 @@ npm start
 const modelStrategy = {
   'treningsplaner': 'gpt-4',        // Høy kvalitet
   'kostholdsplaner': 'gpt-4',      // Komplekse planer
-  'bevegelsesanalyse': 'gpt-3.5-turbo', // Rask feedback
-  'split-anbefalinger': 'gpt-4'    // Intelligent valg
+  'bevegelsesanalyse': 'gpt-4',    // Avansert analyse
+  'split-anbefalinger': 'gpt-4',   // Intelligent valg
+  'øvelsesanalyse': 'gpt-4'        // Detaljert feedback
 };
 ```
 
 ### Ytelsesmetrikker
-- **Treningsplan generering**: 10-30 sekunder
-- **Kostholdsplan generering**: 15-45 sekunder
-- **Bevegelsesanalyse**: 5-15 sekunder
-- **API response time**: <2 sekunder gjennomsnitt
+- **Treningsplan generering**: 15-45 sekunder (GPT-4 kvalitet)
+- **Kostholdsplan generering**: 20-60 sekunder (GPT-4 kvalitet)
+- **Bevegelsesanalyse**: 8-20 sekunder (GPT-4 kvalitet)
+- **API response time**: <3 sekunder gjennomsnitt
 
 ## 🧪 Testing og Kvalitetssikring
 

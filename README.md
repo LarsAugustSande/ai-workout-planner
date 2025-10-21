@@ -1,43 +1,66 @@
-# 🏋️ Trenly AI - Avansert Treningsplattform Backend
+# Trenly AI - Intelligent Treningsplattform
 
-**En revolusjonerende AI-drevet treningsplattform som kombinerer cutting-edge teknologi med personlig helse- og fitness-veiledning.**
+**En avansert AI-drevet treningsplattform som kombinerer kunstig intelligens med personlig helse og fitness-veiledning for å skape skreddersydde treningsplaner og kostholdsplaner.**
 
+[![React](https://img.shields.io/badge/React-19.1.1-blue.svg)](https://reactjs.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
 [![OpenAI GPT-4](https://img.shields.io/badge/OpenAI-GPT--4-blue.svg)](https://openai.com/)
 [![Express.js](https://img.shields.io/badge/Express.js-4.x-lightgrey.svg)](https://expressjs.com/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 
-## 🚀 Prosjektoversikt
+## Prosjektoversikt
 
-Trenly AI er en fullstendig AI-drevet treningsplattform som bruker avansert maskinlæring og naturlig språkbehandling for å generere personlige treningsplaner, kostholdsplaner og progresjonssporing. Plattformen kombinerer OpenAI's GPT-4 med robust backend-arkitektur for å levere en skreddersydd treningserfaring.
+Trenly AI er en fullstendig web-applikasjon som bruker avansert maskinlæring og naturlig språkbehandling for å generere personlige treningsplaner, kostholdsplaner og progresjonssporing. Applikasjonen kombinerer en moderne React frontend med en robust Node.js backend som bruker OpenAI's GPT-4 for å levere en skreddersydd treningserfaring.
 
-### 🎯 Hovedfunksjoner
+## Hovedfunksjoner
 
-- **AI-drevet treningsplanlegging** med automatisk split-valg
-- **7-dagers kostholdsplaner** med makronæringsstoffer
-- **Intelligent progresjonssporing** med dataanalyse
-- **Skadesikker trening** med alternativ-øvelser
-- **PDF-generering** for offline tilgang
-- **Responsiv web-applikasjon** med moderne UI/UX
+- **AI-drevet treningsplanlegging** med automatisk split-valg basert på brukerens preferanser
+- **7-dagers kostholdsplaner** med detaljerte makronæringsstoffer og måltider
+- **Intelligent progresjonssporing** med dataanalyse og trend-sporing
+- **BMI kalkulator** for kroppssammensetning og målsetting
+- **Skadesikker trening** med alternative øvelser og tilpasninger
+- **PDF-generering** for offline tilgang til planer
+- **Responsiv design** med moderne UI/UX og dark mode støtte
+- **Omfattende FAQ** og kontaktinformasjon
 
-## 🏗️ Teknisk Arkitektur
+## Teknisk Arkitektur
 
-### Backend Stack
+### Frontend (React)
+- **React 19.1.1** - Moderne JavaScript bibliotek for brukergrensesnitt
+- **Framer Motion** - Avanserte animasjoner og overganger
+- **React Icons** - Omfattende ikonbibliotek
+- **Axios** - HTTP klient for API-kommunikasjon
+- **HTML2Canvas & jsPDF** - PDF-generering for offline tilgang
+- **MediaPipe** - Computer vision for bevegelsesanalyse
+
+### Backend (Node.js)
 - **Node.js 18+** - Høyytelses JavaScript runtime
 - **Express.js** - Minimalistisk web framework
-- **OpenAI GPT-4** - Avansert AI for treningsplanlegging
-- **OpenAI GPT-3.5-turbo** - Optimalisert for rask analyse
+- **OpenAI GPT-4** - Avansert AI for alle trenings- og kostholdsrelaterte oppgaver
 - **CORS** - Sikker cross-origin kommunikasjon
 - **dotenv** - Sikker miljøvariabel-håndtering
 
 ### AI Modell Strategi
 ```javascript
-// Optimalisert AI-modell bruk
-GPT-4: Treningsplaner, kostholdsplaner, split-anbefalinger
-GPT-3.5-turbo: Bevegelsesanalyse, øvelsesanalyse
+// Optimalisert AI-modell bruk for best ytelse
+GPT-4: Treningsplaner, kostholdsplaner, split-anbefalinger, bevegelsesanalyse, øvelsesanalyse
 ```
 
-## 🔧 API Endpoints
+## Prosjektstruktur
+
+```
+ai-workout-planner/
+├── src/                    # React frontend kildekode
+│   ├── components/         # React komponenter
+│   ├── contexts/          # React contexts (Auth, DarkMode)
+│   └── styles/            # CSS filer
+├── backend/               # Node.js backend
+│   ├── server.js          # Express server
+│   └── package.json       # Backend avhengigheter
+├── public/                # Statiske filer
+└── package.json           # Frontend avhengigheter
+```
+
+## API Endpoints
 
 ### Core Endpoints
 | Endpoint | Metode | Beskrivelse | AI Modell |
@@ -45,8 +68,8 @@ GPT-3.5-turbo: Bevegelsesanalyse, øvelsesanalyse
 | `/api/health` | GET | System health check | - |
 | `/api/generate-workout` | POST | Generer personlig treningsplan | GPT-4 |
 | `/api/generate-meal-plan` | POST | 7-dagers kostholdsplan | GPT-4 |
-| `/api/motion-feedback` | POST | AI-drevet bevegelsesanalyse | GPT-3.5-turbo |
-| `/api/analyze-exercise` | POST | Omfattende øvelsesanalyse | GPT-3.5-turbo |
+| `/api/motion-feedback` | POST | AI-drevet bevegelsesanalyse | GPT-4 |
+| `/api/analyze-exercise` | POST | Omfattende øvelsesanalyse | GPT-4 |
 | `/api/recommend-split` | POST | Intelligent split-anbefaling | GPT-4 |
 | `/api/edit-workout` | POST | Rediger eksisterende planer | GPT-4 |
 
@@ -57,7 +80,7 @@ GPT-3.5-turbo: Bevegelsesanalyse, øvelsesanalyse
 - **Skadehåndtering** med alternative øvelser
 - **Makronæringsstoffer-beregning** med BMR/TDEE
 
-## 🛠️ Installasjon og Oppsett
+## Installasjon og Oppsett
 
 ### Forutsetninger
 - Node.js 18+ 
@@ -65,34 +88,51 @@ GPT-3.5-turbo: Bevegelsesanalyse, øvelsesanalyse
 - OpenAI API-nøkkel
 
 ### Rask start
+
+#### Frontend oppsett
 ```bash
 # Klon repository
 git clone https://github.com/yourusername/trenly-ai.git
-cd trenly-ai/backend
+cd trenly-ai
 
-# Installer avhengigheter
+# Installer frontend avhengigheter
+npm install
+
+# Start React utviklingsserver
+npm start
+
+# Applikasjon kjører på http://localhost:3000
+```
+
+#### Backend oppsett
+```bash
+# Naviger til backend mappe
+cd backend
+
+# Installer backend avhengigheter
 npm install
 
 # Konfigurer miljøvariabler
 cp .env.example .env
 # Rediger .env med din OpenAI API-nøkkel
 
-# Start utviklingsserver
+# Start backend server
 npm run dev
 
-# Server kjører på http://localhost:5001
+# Backend kjører på http://localhost:5001
 ```
 
 ### Produksjons-deployment
 ```bash
-# Bygg for produksjon
+# Bygg frontend for produksjon
 npm run build
 
-# Start produksjonsserver
+# Start backend produksjonsserver
+cd backend
 npm start
 ```
 
-## 🔐 Sikkerhet og Best Practices
+## Sikkerhet og Best Practices
 
 ### Implementerte Sikkerhetstiltak
 - ✅ **API-nøkkel sikkerhet** - Miljøvariabler i .env
@@ -108,7 +148,7 @@ npm start
 - ✅ **Sikker lagring** - Kryptert dataoverføring
 - ✅ **Data sletting** - Automatisk data-rydding
 
-## 📊 Ytelse og Optimalisering
+## Ytelse og Optimalisering
 
 ### AI Modell Optimalisering
 ```javascript
@@ -116,18 +156,19 @@ npm start
 const modelStrategy = {
   'treningsplaner': 'gpt-4',        // Høy kvalitet
   'kostholdsplaner': 'gpt-4',      // Komplekse planer
-  'bevegelsesanalyse': 'gpt-3.5-turbo', // Rask feedback
-  'split-anbefalinger': 'gpt-4'    // Intelligent valg
+  'bevegelsesanalyse': 'gpt-4',    // Avansert analyse
+  'split-anbefalinger': 'gpt-4',   // Intelligent valg
+  'øvelsesanalyse': 'gpt-4'        // Detaljert feedback
 };
 ```
 
 ### Ytelsesmetrikker
-- **Treningsplan generering**: 10-30 sekunder
-- **Kostholdsplan generering**: 15-45 sekunder
-- **Bevegelsesanalyse**: 5-15 sekunder
-- **API response time**: <2 sekunder gjennomsnitt
+- **Treningsplan generering**: 15-45 sekunder (GPT-4 kvalitet)
+- **Kostholdsplan generering**: 20-60 sekunder (GPT-4 kvalitet)
+- **Bevegelsesanalyse**: 8-20 sekunder (GPT-4 kvalitet)
+- **API response time**: <3 sekunder gjennomsnitt
 
-## 🧪 Testing og Kvalitetssikring
+## Testing og Kvalitetssikring
 
 ### Implementerte Tester
 - ✅ **Unit tests** - Individuelle funksjoner
@@ -147,7 +188,7 @@ npm run lint
 npm run type-check
 ```
 
-## 🚀 Deployment og DevOps
+## Deployment og DevOps
 
 ### Produksjonsmiljø
 - **Docker containerization** for konsistent deployment
@@ -173,7 +214,7 @@ jobs:
         run: npm test
 ```
 
-## 📈 Skalering og Fremtidig Utvikling
+## Skalering og Fremtidig Utvikling
 
 ### Planlagte Forbedringer
 - **Microservices arkitektur** for bedre skalering
@@ -188,20 +229,21 @@ jobs:
 - [ ] Implementer rate limiting
 - [ ] Legg til API dokumentasjon (Swagger)
 
-## 🤝 Bidrag og Utvikling
+## Bidrag og Utvikling
 
 ### For Utviklere
 ```bash
 # Setup utviklingsmiljø
 git clone https://github.com/yourusername/trenly-ai.git
-cd trenly-ai/backend
+cd trenly-ai
+
+# Installer avhengigheter
 npm install
+cd backend && npm install
 
 # Start utviklingsserver med hot-reload
-npm run dev
-
-# Kjør tester
-npm test
+npm start  # Frontend
+cd backend && npm run dev  # Backend
 ```
 
 ### Kodekvalitet
@@ -210,20 +252,20 @@ npm test
 - **Husky** for pre-commit hooks
 - **Conventional commits** for commit-meldinger
 
-## 📞 Kontakt og Support
+## Kontakt og Support
 
 ### Utvikler
 **Lars August Sande**
-- 📧 Email: larsaugustsande@gmail.com
-- 💼 LinkedIn: [linkedin.com/in/larsaugustsande](www.linkedin.com/in/lars-august-sande-2191a6245)
-- 🐙 GitHub: [github.com/larsaugustsande](https://github.com/larsaugustsande)
+- Email: larsaugustsande@gmail.com
+- LinkedIn: [linkedin.com/in/larsaugustsande](www.linkedin.com/in/lars-august-sande-2191a6245)
+- GitHub: [github.com/larsaugustsande](https://github.com/larsaugustsande)
 
 
-## 📄 Lisens
+## Lisens
 
 Dette prosjektet er lisensiert under MIT License - se [LICENSE](LICENSE) filen for detaljer.
 
-## 🙏 Takk
+## Takk
 
 Takk til alle som har bidratt til dette prosjektet, og spesielt til OpenAI for deres avanserte AI-teknologi som gjør Trenly AI mulig.
 
@@ -232,6 +274,3 @@ Takk til alle som har bidratt til dette prosjektet, og spesielt til OpenAI for d
 **Laget med ❤️ i Norge for å revolusjonere personlig trening gjennom AI-teknologi.**
 
 **⭐ If you found this project helpful, please give it a star! ⭐**
-
-</div># ai-workout-planner
-# ai-workout-planner

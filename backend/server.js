@@ -355,7 +355,7 @@ SPORTSPESIFIKK TRENING:
     }`;
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo", // Raskere modell for bedre ytelse
+      model: "gpt-4", // Bruker GPT-4 for høy kvalitet treningsplaner
       messages: [
         {
           role: "system",
