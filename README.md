@@ -134,22 +134,6 @@ npm start
 
 ## Sikkerhet og Best Practices
 
-### Implementerte Sikkerhetstiltak
-- ✅ **API-nøkkel sikkerhet** - Miljøvariabler i .env
-- ✅ **CORS konfigurering** - Begrenset til frontend-domene
-- ✅ **Error handling** - Omfattende feilhåndtering
-- ✅ **Input validering** - Robust data-validering
-- ✅ **Rate limiting** - Beskyttelse mot overforbruk
-- ✅ **JSON sanitization** - Sikker data-behandling
-
-### GDPR Compliance
-- ✅ **Data minimering** - Kun nødvendig data samles
-- ✅ **Brukerrettigheter** - Full GDPR-compliance
-- ✅ **Sikker lagring** - Kryptert dataoverføring
-- ✅ **Data sletting** - Automatisk data-rydding
-
-## Ytelse og Optimalisering
-
 ### AI Modell Optimalisering
 ```javascript
 // Strategisk modell-bruk for optimal ytelse
@@ -167,14 +151,6 @@ const modelStrategy = {
 - **Kostholdsplan generering**: 20-60 sekunder (GPT-4 kvalitet)
 - **Bevegelsesanalyse**: 8-20 sekunder (GPT-4 kvalitet)
 - **API response time**: <3 sekunder gjennomsnitt
-
-## Testing og Kvalitetssikring
-
-### Implementerte Tester
-- ✅ **Unit tests** - Individuelle funksjoner
-- ✅ **Integration tests** - API endpoint testing
-- ✅ **Error handling tests** - Robusthetstesting
-- ✅ **Performance tests** - Ytelsesvalidering
 
 ### Kvalitetssikring
 ```bash
@@ -214,44 +190,6 @@ jobs:
         run: npm test
 ```
 
-## Skalering og Fremtidig Utvikling
-
-### Planlagte Forbedringer
-- **Microservices arkitektur** for bedre skalering
-- **Redis caching** for raskere respons
-- **Database integrasjon** for persistering
-- **WebSocket support** for real-time oppdateringer
-- **Mobile API** for native app-utvikling
-
-### Teknisk Gjeld
-- [ ] Implementer TypeScript for bedre type-sikkerhet
-- [ ] Legg til comprehensive logging
-- [ ] Implementer rate limiting
-- [ ] Legg til API dokumentasjon (Swagger)
-
-## Bidrag og Utvikling
-
-### For Utviklere
-```bash
-# Setup utviklingsmiljø
-git clone https://github.com/yourusername/trenly-ai.git
-cd trenly-ai
-
-# Installer avhengigheter
-npm install
-cd backend && npm install
-
-# Start utviklingsserver med hot-reload
-npm start  # Frontend
-cd backend && npm run dev  # Backend
-```
-
-### Kodekvalitet
-- **ESLint** for kodekvalitet
-- **Prettier** for konsistent formatering
-- **Husky** for pre-commit hooks
-- **Conventional commits** for commit-meldinger
-
 ## Kontakt og Support
 
 ### Utvikler
@@ -261,16 +199,4 @@ cd backend && npm run dev  # Backend
 - GitHub: [github.com/larsaugustsande](https://github.com/larsaugustsande)
 
 
-## Lisens
 
-Dette prosjektet er lisensiert under MIT License - se [LICENSE](LICENSE) filen for detaljer.
-
-## Takk
-
-Takk til alle som har bidratt til dette prosjektet, og spesielt til OpenAI for deres avanserte AI-teknologi som gjør Trenly AI mulig.
-
----
-
-**Laget med ❤️ i Norge for å revolusjonere personlig trening gjennom AI-teknologi.**
-
-**⭐ If you found this project helpful, please give it a star! ⭐**
